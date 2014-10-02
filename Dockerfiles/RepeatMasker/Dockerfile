@@ -20,7 +20,7 @@ RUN wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/rmblast/LATEST/ncbi-rmblas
 # Install Blast+
 RUN wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ncbi-blast-2.2.29+-x64-linux.tar.gz && \
     tar -xzvf ncbi-blast* && \
-    find ncbi-blast* -type f -executable | xargs -n 1 bin/ && \
+    find ncbi-blast* -type f -executable -exec mv {} bin \; && \  
     rm -rf ncbi-blast*
     
 # Install RepeatMasker
@@ -28,6 +28,5 @@ WORKDIR /usr/local
 RUN wget http://www.repeatmasker.org/RepeatMasker-open-4-0-5.tar.gz && \
     tar -xzvf RepeatMasker-open*.tar.gz && \
     rm -f RepeatMasker-open*.tar.gz
-
     
 
