@@ -35,8 +35,15 @@ docker build -t repeatmasker:lastest .
 ## Using the container
 
 ```sh
-run -v $PWD:/in -w /in repeatmasker RepeatMasker scaffolds.fasta
+docker run -v $PWD:/in -w /in repeatmasker RepeatMasker scaffolds.fasta
 ```
+
+This runs the container, mounting the current directory (and all
+subdirectories) into the container at /in (`-v $PWD/in`). The `w /in`
+arguments ensure that the command is run from this new directory. We
+then specify that we want to use the `repeatmasker` image we just
+created. Inside the container, the command `RepeatMasker
+scaffolds.fasta` is run.
 
 ## Included in the container
 
