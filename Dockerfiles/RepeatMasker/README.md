@@ -12,8 +12,8 @@ untouched.
 ## Building the container
 
 You'll need a copy of the latest
-[Repbase-derived RepeatMasker libraries](http://www.girinst.org/server/RepBase/protected/repeatmaskerlibraries/repeatmaskerlibraries-20140131.tar.gz)
-(requires registration) and put it in the same directory as the
+[Repbase-derived RepeatMasker libraries](http://www.girinst.org/server/RepBase/index.php)
+(requires [free registration](http://www.girinst.org/accountservices/register.php)) and put it in the same directory as the
 Dockerfile, renamed as `repeatmaskerlibraries.tar.gz`
 
 ```sh
