@@ -1,3 +1,4 @@
 Dockerfiles/RepeatMasker/repeatmaskerlibraries*.tar.gz
 .nextflow.*
 work
+#*
