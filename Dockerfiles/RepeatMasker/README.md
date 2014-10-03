@@ -3,11 +3,18 @@
 This simple container is designed to make it easier to run
 RepeatMasker on new machines. If you have your own permanent 
 [big-ass-server](http://jermdemo.blogspot.ca/2011/06/big-ass-servers-and-myths-of-clusters.html),
-you might want to simply install the software as usual and that's OK.
-If you are spinning up virtual machines on somebody else's
-infrastructure or you don't want to mess up the Sysadmin's server, you
-can use this container to get your work done and then leave the system
-untouched.
+you might want to simply install the software as usual and that's very
+sensible.
+
+There are also plenty of situations were you might want to use a
+container:
+
+* You are using compute resources on EC2 or GCE and you don't want to
+make a new disk image for each step of the annotation pipeline.
+* A container described by a Dockerfile also provides complete
+documentation of how the results were generated, which makes
+replication a little easier.
+* You are using a [docker-aware pipeline](http://nextflow.io/).
 
 ## Building the container
 
