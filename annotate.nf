@@ -14,6 +14,7 @@ process cleanGenome {
         name = genome.getParent().getBaseName()
         """
         awk '/^>/ && !/[.*]/ {print(\$0, "[$name]")} /^>/ && /[.*]/ {print \$0} /^[^>]/ {print(toupper(\$0))}' '$genome'
+        sed -ie "s/\015//" $genome
         """
 }
 
