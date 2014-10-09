@@ -71,5 +71,14 @@ cleanOrfs = orfFiles.splitFasta(record: [header: true, seqString: true])
              ["${matcher[-1][1]}.orfs.aa.fasta", ">" + record.header + "\n" + wrapString(record.seqString) + "\n"]
         }
 
-        
+process hhblit {
+        container 'robsyme/hhblits'
+
+        input:
+        file 'orfs.fasta' from cleanOrfs
+
+        """
+        ffindex_from_fasta -s orfs.db orfs.db.idx orfs.fasta
+        """
+}        
 
