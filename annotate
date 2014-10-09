@@ -1,6 +1,6 @@
 #!/usr/bin/env nextflow
 
-params.genomes = 'data/**/genome.fasta'
+params.genomes = 'data/**/tmp.fasta'
 genomes = Channel.fromPath(params.genomes)
 
 
@@ -89,17 +89,9 @@ process hhblit {
 
 process parse_hhr {
         input:
-        result from hhblitOutput
+        val result from hhblitOutput
 
-        output:
-        val matcher into tmp
-        
-        script:
-        matcher = ( result =~ /Query.*?\n/)
-        return matcher
+        exec:
+        (fullMatch, queryName, queryStart, queryEnd, revString, strain) = (result =~ (/Query\s+(\S+) \[(\d+) - (\d+)\] (\(REVERSE SENSE\))?.* \[(.*)\]/))[0]
+        println fullMatch
 }
-
-tmp.subscribe {
-    println it
-}
-
