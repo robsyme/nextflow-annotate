@@ -3,6 +3,16 @@
 params.genomes = 'data/**/genome.fasta'
 genomes = Channel.fromPath(params.genomes)
 
+def wrapString(text, width=80) {
+  def out = []
+  while(text.length() > width) {
+    out += text[0..(width-1)]
+    text = text[width..-1]
+  }
+  out += text
+  return out.join("\n")
+}
+
 process cleanGenome {
         input:
         val genome from genomes
@@ -46,7 +56,7 @@ process getorf {
         """
 }
 
-orfFiles.splitFasta(record: [header: true, seqString: true])
+cleanOrfs = orfFiles.splitFasta(record: [header: true, seqString: true])
         .filter { record ->
              xCount = record.seqString.count('X')
              length = record.seqString.size()
@@ -56,11 +66,9 @@ orfFiles.splitFasta(record: [header: true, seqString: true])
              record.seqString = record.seqString.replaceAll('X','')
              record
         }
-        .groupBy { record ->
-                 record.header.find(/\[.*\]/)
-        }
-        .subscribe { record ->
-                   println record
+        .collectFile() { record ->
+             matcher = ( record.header =~ /\[(.*?)\]/)
+             ["${matcher[-1][1]}.orfs.aa.fasta", ">" + record.header + "\n" + wrapString(record.seqString) + "\n"]
         }
 
         
