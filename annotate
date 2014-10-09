@@ -3,6 +3,11 @@
 params.genomes = 'data/**/genome.fasta'
 genomes = Channel.fromPath(params.genomes)
 
+
+def toFasta(defLine, sequence, width=80) {
+    return (">" + defLine + "\n" + wrapString(sequence, width) + "\n")
+}
+
 def wrapString(text, width=80) {
   def out = []
   while(text.length() > width) {
