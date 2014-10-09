@@ -69,21 +69,37 @@ cleanOrfs = orfFiles.splitFasta(record: [header: true, seqString: true])
         }
         .map { record ->
              record.seqString = record.seqString.replaceAll('X','')
-             record
-        }
-        .collectFile() { record ->
-             matcher = ( record.header =~ /\[(.*?)\]/)
-             ["${matcher[-1][1]}.orfs.aa.fasta", ">" + record.header + "\n" + wrapString(record.seqString) + "\n"]
+             return toFasta(record.header, record.seqString)
         }
 
 process hhblit {
         container 'robsyme/hhblits'
 
         input:
-        file 'orfs.fasta' from cleanOrfs
+        file 'orf.fasta' from cleanOrfs
+
+        output:
+        stdout into hhblitOutput
 
         """
-        ffindex_from_fasta -s orfs.db orfs.db.idx orfs.fasta
+        #hhblits -i orf.fasta -d /databases/transposons -maxmem 5 -cpu 1 -o stdout -e 1E-5 -E 1E-5 -id 80 -p 80 -z 0 -b 0 -B 3 -Z 3 -n 1 -mact 0.5 -v 0
+        hhblits -i orf.fasta -d /databases/transposons -n 1 -o stdout
         """
-}        
+}
+
+process parse_hhr {
+        input:
+        result from hhblitOutput
+
+        output:
+        val matcher into tmp
+        
+        script:
+        matcher = ( result =~ /Query.*?\n/)
+        return matcher
+}
+
+tmp.subscribe {
+    println it
+}
 
