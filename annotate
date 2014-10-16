@@ -130,33 +130,33 @@ class HHRHit {
 }
 
 process cleanGenome {
-input:
-val genome from genomes
+  input:
+  val genome from genomes
 
-output:
-set name, stdout into cleanGenomes
+  output:
+  set name, stdout into cleanGenomes
         
-script:
-name = genome.getParent().getBaseName()
+  script:
+  name = genome.getParent().getBaseName()
 
-"""
-awk '/^>/ && !/[.*]/ {print(\$0, "[$name]")} /^>/ && /[.*]/ {print \$0} /^[^>]/ {print(toupper(\$0))}' '$genome'
-sed -ie "s/\015//" "$genome"
-"""
+  """
+  awk '/^>/ && !/[.*]/ {print(\$0, "[$name]")} /^>/ && /[.*]/ {print \$0} /^[^>]/ {print(toupper(\$0))}' '$genome'
+  sed -ie "s/\015//" "$genome"
+  """
 }
 
 process getorf {
-container 'robsyme/emboss'
+  container 'robsyme/emboss'
 
-input:
-set name, 'maskedGenome' from cleanGenomes
+  input:
+  set name, 'maskedGenome' from cleanGenomes
 
-output:
-file 'orfs.aa.fasta' into orfFiles
+  output:
+  file 'orfs.aa.fasta' into orfFiles
 
-"""
-getorf -sequence $maskedGenome -outseq orfs.aa.fasta -minsize 150 -find 1
-"""
+  """
+  getorf -sequence $maskedGenome -outseq orfs.aa.fasta -minsize 150 -find 1
+  """
 }
 
 cleanOrfs = orfFiles.splitFasta(record: [header: true, seqString: true])
@@ -172,17 +172,17 @@ cleanOrfs = orfFiles.splitFasta(record: [header: true, seqString: true])
 }
 
 process hhblit {
-container 'robsyme/hhblits'
+  container 'robsyme/hhblits'
 
-input:
-file 'orf.fasta' from cleanOrfs
+  input:
+  file 'orf.fasta' from cleanOrfs
 
-output:
-stdout into hhblitOutput
+  output:
+  stdout into hhblitOutput
 
-"""
-hhblits -i orf.fasta -d /databases/transposons -maxmem 5 -cpu 1 -o stdout -e 1E-5 -E 1E-5 -id 80 -p 80 -z 0 -b 0 -B 3 -Z 3 -n 1 -mact 0.5 -v 0
-"""
+  """
+  hhblits -i orf.fasta -d /databases/transposons -maxmem 5 -cpu 1 -o stdout -e 1E-5 -E 1E-5 -id 80 -p 80 -z 0 -b 0 -B 3 -Z 3 -n 1 -mact 0.5 -v 0
+  """
 }
 
 transposonGFFLines = Channel.create()
@@ -202,15 +202,15 @@ hhblitOutput
 transposonGFF = transposonGFFLines.collectFile(name: 'transposon_hits.gff3')
 
 process sortTransposonHits {
-input:
-file 'gff' from transposonGFF
+  input:
+  file 'gff' from transposonGFF
 
-output:
-stdout into transposonSortedGFF
+  output:
+  stdout into transposonSortedGFF
 
-"""
-sort -nk 4,4 $gff | sort -sk 1,1
-"""
+  """
+  sort -nk 4,4 $gff | sort -sk 1,1
+  """
 }
 
 transposonSortedGFF.subscribe {
