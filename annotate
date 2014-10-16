@@ -3,9 +3,15 @@
 params.genomes = 'data/**/tmp.fasta'
 genomes = Channel.fromPath(params.genomes)
 
+params.homologyProbabilityCutoff = 70
+params.evalueCutoff = 1e-3
+params.pvalueCutoff = 1e-6
+params.scoreCutoff = 100
+params.alignmentLengthCutoff = 50
+params.templateLengthCutoff = 30
 
 def toFasta(defLine, sequence, width=80) {
-    return (">" + defLine + "\n" + wrapString(sequence, width) + "\n")
+  return (">" + defLine + "\n" + wrapString(sequence, width) + "\n")
 }
 
 def wrapString(text, width=80) {
@@ -18,80 +24,184 @@ def wrapString(text, width=80) {
   return out.join("\n")
 }
 
-process cleanGenome {
-        input:
-        val genome from genomes
+class HHRHit {
+  float probability
+  float evalue
+  float pvalue
+  float score
+  float structureScore
+  String queryName
+  String queryStart
+  String queryEnd
+  String revString
+  String strainName  
+  String description
+  Integer alignmentLength
+  Integer aaStart
+  Integer aaStop
+  Integer hitStart
+  Integer hitStop
+  Integer templateSize  
 
-        output:
-        set name, stdout into cleanGenomes
-        
-        script:
-        name = genome.getParent().getBaseName()
-        """
-        awk '/^>/ && !/[.*]/ {print(\$0, "[$name]")} /^>/ && /[.*]/ {print \$0} /^[^>]/ {print(toupper(\$0))}' '$genome'
-        sed -ie "s/\015//" '$genome'
-        """
+  HHRHit(String result) {
+    // Pull out the query information. It will look something like:
+    // Query         Scaffold_1_318 [160485 - 161177] Length:352063 [Ascochyta_fabae_Af1]
+    (queryName, queryStart, queryEnd, revString, strainName) = (result =~ (/Query\s+(\S+)_\d+ \[(\d+) - (\d+)\] (\(REVERSE SENSE\))?.* \[(.*)\]/))[0][1..-1]
+    
+    // Find the top hit. The line will look something like:
+    //   1 GB:CAA29181 ORF 1 (LINE-elemen  99.9 1.4E-28 4.1E-32  243.9   0.0   61    2-69   1216-1281(1650)
+    def hitData = (result =~ /\s+1\s+(.{30})\s+(\d+\.?\d*)\s+(\d+\.?\d*E?-?\d*)\s+(\d+\.?\d*E?-?\d*)\s+(\d+\.?\d*)\s+(\d+\.?\d*)\s+(\d+)\s+(\d+)-(\d+)\s+(\d+)-(\d+)\s*\((\d+)\)/)
+    if (hitData.size() == 0) {
+      // It's likely that many of the orfs won't have any hits. In
+      // this case, just return a 'hit' with score zero
+      score = 0
+      structureScore = 0
+    } else {
+      // If we do find a hit, return a new HHRHit instance.
+      description = hitData[0][1]
+      probability = hitData[0][2].toFloat()
+      evalue = hitData[0][3].toFloat()
+      pvalue = hitData[0][4].toFloat()
+      score = hitData[0][5].toFloat()
+      structureScore = hitData[0][6].toFloat()
+      alignmentLength = hitData[0][7].toInteger()
+      aaStart = hitData[0][8].toInteger()
+      aaStop = hitData[0][9].toInteger()
+      hitStart = hitData[0][10].toInteger()
+      hitStop = hitData[0][11].toInteger()
+      templateSize = hitData[0][12].toInteger()
+    }
+  }
+
+  String toString() {
+    def out = []
+    out.push "Query:         " + queryName + " (" + queryStart + "-" + queryEnd + ") [" + strainName + "]"
+    out.push "  Description: '" + description + "'"
+    out.push "  Probability: " + probability
+    out.push "  E-value:     " + evalue
+    out.push "  P-value:     " + pvalue
+    out.push "  Score:       " + score
+    return out.join("\n")
+  }
+
+  String toGFF3() {
+    def hitID = description.split()[0]
+    def uid = "${hitID}.s${hitStart}.e${hitStop}"
+    def out = []
+    out.push queryName
+    out.push 'hhblits'
+    out.push 'protein_match'
+    out.push queryStart + 3 * aaStart - 1
+    out.push queryStart + 3 * aaStop - 1
+    out.push score
+    out.push revString ? "-" : "+"
+    out.push "."
+    out.push "ID=${uid};Name=${uid};Target=${hitID} $hitStart $hitStop"
+    println "DONE: ${out.join('\t')}"
+    out.join("\t")
+  }
+  
+  String toHints() {
+    def out = []
+    out.push queryName
+    out.push 'hhblits'
+    out.push "nonexonpart"
+    out.push queryStart + 3 * aaStart - 1
+    out.push queryStart + 3 * aaStop - 1
+    out.push score
+    out.push revString ? "-" : "+"
+    out.push "."
+    out.push "source=RM;grp=${description.split()[0]};pri=6"
+    out.join("\t")
+  }
+  
+  String toGeneID() {
+    def out = []
+    out.push queryName
+    out.push 'hhblits'
+    out.push 'sr'
+    out.push queryStart + 3 * aaStart - 1
+    out.push queryStart + 3 * aaStop - 1
+    out.push score
+    out.push revString ? "-" : "+"
+    out.push '.'
+    out.join("\t")
+  }
 }
 
-process RepeatMasker {
-        container 'repeatmasker'
-        
-        input:
-        set name, 'genome' from cleanGenomes
+process cleanGenome {
+input:
+val genome from genomes
 
-        output:
-        set name, 'genome.masked' into maskedGenomes
+output:
+set name, stdout into cleanGenomes
         
-        """
-        RepeatMasker $genome
-        """
+script:
+name = genome.getParent().getBaseName()
+
+"""
+awk '/^>/ && !/[.*]/ {print(\$0, "[$name]")} /^>/ && /[.*]/ {print \$0} /^[^>]/ {print(toupper(\$0))}' '$genome'
+sed -ie "s/\015//" "$genome"
+"""
 }
 
 process getorf {
-        container 'robsyme/emboss'
+container 'robsyme/emboss'
 
-        input:
-        set name, 'maskedGenome' from maskedGenomes
+input:
+set name, 'maskedGenome' from cleanGenomes
 
-        output:
-        file 'orfs.aa.fasta' into orfFiles
+output:
+file 'orfs.aa.fasta' into orfFiles
 
-        """
-        getorf -sequence $maskedGenome -outseq orfs.aa.fasta -minsize 150 -find 1
-        """
+"""
+getorf -sequence $maskedGenome -outseq orfs.aa.fasta -minsize 150 -find 1
+"""
 }
 
 cleanOrfs = orfFiles.splitFasta(record: [header: true, seqString: true])
-        .filter { record ->
-             xCount = record.seqString.count('X')
-             length = record.seqString.size()
-             xCount / length < 0.3
-        }
-        .map { record ->
-             record.seqString = record.seqString.replaceAll('X','')
-             return toFasta(record.header, record.seqString)
-        }
-
-process hhblit {
-        container 'robsyme/hhblits'
-
-        input:
-        file 'orf.fasta' from cleanOrfs
-
-        output:
-        stdout into hhblitOutput
-
-        """
-        #hhblits -i orf.fasta -d /databases/transposons -maxmem 5 -cpu 1 -o stdout -e 1E-5 -E 1E-5 -id 80 -p 80 -z 0 -b 0 -B 3 -Z 3 -n 1 -mact 0.5 -v 0
-        hhblits -i orf.fasta -d /databases/transposons -n 1 -o stdout
-        """
+.filter { record ->
+  xCount = record.seqString.count('X')
+  length = record.seqString.size()
+  xCount / length < 0.3
+}
+.map { record ->
+  record.seqString = record.seqString.replaceAll('X','')
+  return toFasta(record.header, record.seqString)
 }
 
-process parse_hhr {
-        input:
-        val result from hhblitOutput
+process hhblit {
+container 'robsyme/hhblits'
 
-        exec:
-        (fullMatch, queryName, queryStart, queryEnd, revString, strain) = (result =~ (/Query\s+(\S+) \[(\d+) - (\d+)\] (\(REVERSE SENSE\))?.* \[(.*)\]/))[0]
-        println fullMatch
+input:
+file 'orf.fasta' from cleanOrfs
+
+output:
+stdout into hhblitOutput
+
+"""
+hhblits -i orf.fasta -d /databases/transposons -maxmem 5 -cpu 1 -o stdout -e 1E-5 -E 1E-5 -id 80 -p 80 -z 0 -b 0 -B 3 -Z 3 -n 1 -mact 0.5 -v 0
+"""
+}
+
+transposonGFFLines = Channel.create()
+transposonHintLines = Channel.create()
+transposonGeneIDLines = Channel.create()
+
+hhblitOutput
+.map { String result -> new HHRHit(result) }
+.filter { it.score > 0 }
+.filter { it.probability > params.homologyProbabilityCutoff }
+.filter { it.evalue < params.evalueCutoff }
+.filter { it.pvalue < params.pvalueCutoff }
+.filter { it.alignmentLength > params.alignmentLengthCutoff }
+.filter { it.templateSize > params.templateLengthCutoff }
+.take(3)
+.separate(transposonGFFLines, transposonHintLines, transposonGeneIDLines) { [ it.toGFF3(), it.toHints(), it.toGeneID() ] }
+
+
+transposonGFFLines.collectFile(name: 'transposons.gff3')
+.subscribe {
+  println "File ${it.name} contains:"
+  println it.text
 }
