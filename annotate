@@ -160,7 +160,6 @@ process getorf {
 }
 
 cleanOrfs = orfFiles.splitFasta(record: [header: true, seqString: true])
-.filter { record -> record.seqString.size() >= 50 }
 .filter { record ->
   xCount = record.seqString.count('X')
   length = record.seqString.size()
