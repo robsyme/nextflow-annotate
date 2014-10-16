@@ -196,7 +196,6 @@ hhblitOutput
 .filter { it.pvalue < params.pvalueCutoff }
 .filter { it.alignmentLength > params.alignmentLengthCutoff }
 .filter { it.templateSize > params.templateLengthCutoff }
-.take(3)
 .separate(transposonGFFLines, transposonHintLines, transposonGeneIDLines) { [ it.toGFF3(), it.toHints(), it.toGeneID() ] }
 
 
