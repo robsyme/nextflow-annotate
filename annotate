@@ -199,9 +199,20 @@ hhblitOutput
 .filter { it.templateSize > params.templateLengthCutoff }
 .separate(transposonGFFLines, transposonHintLines, transposonGeneIDLines) { [ it.toGFF3(), it.toHints(), it.toGeneID() ] }
 
+transposonGFF = transposonGFFLines.collectFile(name: 'transposon_hits.gff3')
 
-transposonGFFLines.collectFile(name: 'transposons.gff3')
-.subscribe {
-  println "File ${it.name} contains:"
-  println it.text
+process sortTransposonHits {
+input:
+file 'gff' from transposonGFF
+
+output:
+stdout into transposonSortedGFF
+
+"""
+sort -nk 4,4 $gff | sort -sk 1,1
+"""
+}
+
+transposonSortedGFF.subscribe {
+  it.moveTo('./')
 }
