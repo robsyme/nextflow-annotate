@@ -160,6 +160,7 @@ getorf -sequence $maskedGenome -outseq orfs.aa.fasta -minsize 150 -find 1
 }
 
 cleanOrfs = orfFiles.splitFasta(record: [header: true, seqString: true])
+.filter { record -> record.seqString.size() >= 50 }
 .filter { record ->
   xCount = record.seqString.count('X')
   length = record.seqString.size()
