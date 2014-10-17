@@ -1,0 +1,38 @@
+#!/usr/bin/env nextflow
+
+params.genomes = 'data/**/scaffolds.fasta'
+genomes = Channel.fromPath(params.genomes)
+
+process cleanGenome {
+  input:
+  val genome from genomes
+
+  output:
+  set name, stdout into cleanGenomes
+        
+  script:
+  name = genome.getParent().getBaseName()
+
+  """
+  awk '/^>/ && !/[.*]/ {print(\$0, "[$name]")} /^>/ && /[.*]/ {print \$0} /^[^>]/ {print(toupper(\$0))}' '$genome'
+  sed -ie "s/\015//" "$genome"
+  """
+}
+
+process runGenemark {
+  maxForks 2
+  
+  input:
+  set name, 'scaffolds.fasta' from cleanGenomes
+
+  output:
+  set name, 'genes' into annotations
+
+  """
+  gm_es.pl --min_contig 1000 --BP ON scaffolds.fasta
+  """
+}
+
+annotations.subscribe { name, gtfFile ->
+  gtfFile.moveTo("${name}.gtf")
+}
