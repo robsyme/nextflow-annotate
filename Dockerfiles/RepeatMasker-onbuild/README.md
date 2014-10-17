@@ -1,4 +1,4 @@
-# RepeatMasker Container
+# RepeatMasker-onbuild Container
 
 This simple container is designed to make it easier to run
 RepeatMasker on new machines. If you have your own permanent 
@@ -40,7 +40,7 @@ wget --user your_username \
     --password 12345 \
     -O repeatmaskerlibraries.tar.gz \
     http://www.girinst.org/server/RepBase/protected/repeatmaskerlibraries/repeatmaskerlibraries-20140131.tar.gz
-echo "FROM robsyme/repeatmasker-onbuild:latest"
+echo "FROM robsyme/repeatmasker-onbuild:v4.0.5"
 docker build -t myrepeatmasker .
 ```
 
