@@ -1,11 +1,11 @@
 #!/usr/bin/env nextflow
 
-params.genomes = 'data/**/scaffolds.fasta'
-genomes = Channel.fromPath(params.genomes)
+genome = file(params.genome)
+cegmaFile = file(params.cegma)
 
 process cleanGenome {
   input:
-  val genome from genomes
+  genome
 
   output:
   set name, stdout into cleanGenomes
@@ -13,26 +13,57 @@ process cleanGenome {
   script:
   name = genome.getParent().getBaseName()
 
+  println genome.toAbsolutePath()
   """
   awk '/^>/ && !/[.*]/ {print(\$0, "[$name]")} /^>/ && /[.*]/ {print \$0} /^[^>]/ {print(toupper(\$0))}' '$genome'
   sed -ie "s/\015//" "$genome"
   """
 }
 
-process runGenemark {
-  maxForks 2
-  
+process cegmaGFFtoFullerGFF {
   input:
-  set name, 'scaffolds.fasta' from cleanGenomes
+  file 'cegmaFile' from cegmaFile
 
   output:
-  set name, 'genes' into annotations
+  stdout fullGFF
 
   """
-  gm_es.pl --min_contig 1000 --BP ON scaffolds.fasta
+  fullerCegmaGFF.rb $cegmaFile
   """
 }
 
-annotations.subscribe { name, gtfFile ->
-  gtfFile.moveTo("${name}.gtf")
+process cegmaGFFToGenbank {
+  container 'robsyme/augustus'
+  
+  input:
+  file gff from fullGFF
+  file fasta from genome
+
+  output:
+  file 'out.gb' into trainingGenbank
+  
+  """
+  gff2gbSmallDNA.pl $gff $fasta 5000 out.gb
+  """
+}
+
+process trainAndCallGenes {
+  container 'robsyme/augustus'
+
+  input:
+  file trainingGenbank
+  file genome
+
+  output:
+  file 'out.txt' into trainedFile
+
+  """
+  optimize_augustus.pl --species=fusarium_graminearum $trainingGenbank
+  etraining --species=fusarium_graminearum $trainingGenbank
+  augustus --species=fusarium_graminearum > out.txt
+  """
+}
+
+trainedFile.subscribe {
+  println it
 }
