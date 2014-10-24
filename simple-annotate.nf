@@ -61,7 +61,7 @@ process trainAndCallGenes {
   """
   optimize_augustus.pl --species=fusarium_graminearum $trainingGenbank
   etraining --species=fusarium_graminearum $trainingGenbank
-  augustus --species=fusarium_graminearum > out.txt
+  augustus --species=fusarium_graminearum $genome > out.txt
   """
 }
 
