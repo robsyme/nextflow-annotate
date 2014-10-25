@@ -17,7 +17,7 @@ process cleanGenome {
   println genome.toAbsolutePath()
   """
   awk '/^>/ && !/[.*]/ {print(\$0, "[$name]")} /^>/ && /[.*]/ {print \$0} /^[^>]/ {print(toupper(\$0))}' '$genome' \
-  | sed "s/\015//" > "$genome"
+  | sed "s/\015//"
   """
 }
 
