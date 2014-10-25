@@ -2,6 +2,7 @@
 
 genome = file(params.genome)
 cegmaFile = file(params.cegma)
+strainName = genome.getParent().getBaseName()
 outFilename = params.out
 
 process cleanGenome {
@@ -9,17 +10,15 @@ process cleanGenome {
   genome
 
   output:
-  set name, stdout into cleanGenomes
+  stdout into cleanGenomes
         
   script:
-  name = genome.getParent().getBaseName()
-
-  println genome.toAbsolutePath()
   """
-  awk '/^>/ && !/[.*]/ {print(\$0, "[$name]")} /^>/ && /[.*]/ {print \$0} /^[^>]/ {print(toupper(\$0))}' '$genome' \
-  | sed "s/\015//"
+  awk '/^>/ && !/[.*]/ {print(\$0, "[$strainName]")} /^>/ && /[.*]/ {print \$0} /^[^>]/ {print(toupper(\$0))}' '$genome' | sed "s/\015//"
   """
 }
+
+(fastaForGFF, fastaForAug) = cleanGenomes.separate(2){ [it, it] }
 
 process cegmaGFFtoFullerGFF {
   input:
@@ -38,7 +37,7 @@ process cegmaGFFToGenbank {
   
   input:
   file gff from fullGFF
-  file fasta from genome
+  file fasta from fastaForGFF
 
   output:
   file 'out.gb' into trainingGenbank
@@ -53,7 +52,7 @@ process trainAndCallGenes {
 
   input:
   file trainingGenbank
-  file genome
+  file genome from fastaForAug
 
   output:
   file 'out.txt' into trainedFile
@@ -68,3 +67,4 @@ process trainAndCallGenes {
 trainedFile.subscribe { trained ->
   trained.copyTo(outFilename)
 }
+
