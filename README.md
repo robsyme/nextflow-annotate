@@ -11,8 +11,8 @@ point for annotating your new genome.
 
 ## Prerequisites
 
-The minimum prerequisites are [docker][http://docker.io] and
-[nextflow][http://nextflow.io], and a fasta file (henceforth
+The minimum prerequisites are [docker](http://docker.io) and
+[nextflow](http://nextflow.io), and a fasta file (henceforth
 `scaffolds.fasta`) of your genome assembly.
 
 Some steps require software or data with licences that restrict
@@ -26,7 +26,7 @@ provided by this repository.
 
 ### Transposon Identification
 
-Taking cues from [jamg][http://jamg.sourceforge.net], we transcribe
+Taking cues from [jamg](http://jamg.sourceforge.net), we transcribe
 all of the open reading frames and then use hhblit to match against a
 database of known transposons. A GFF file is produced that describes
 to position of the transposons that we find.
