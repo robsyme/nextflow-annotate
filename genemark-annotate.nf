@@ -1,7 +1,6 @@
 #!/usr/bin/env nextflow
 
 genome = file(params.genome)
-cegmaFile = file(params.cegma)
 strainName = genome.getParent().getBaseName()
 outFilename = params.out
 
@@ -19,10 +18,7 @@ process cleanGenome {
 }
 
 process trainAndCallGenes {
-  container 'robsyme/augustus'
-
   input:
-  file trainingGenbank
   file genome from cleanGenome
 
   output:
@@ -34,6 +30,6 @@ process trainAndCallGenes {
   """
 }
 
-trainedFile.subscribe { trained ->
-  trained.copyTo(outFilename)
+annotation.subscribe { gff3 ->
+  gff3.copyTo(outFilename)
 }
