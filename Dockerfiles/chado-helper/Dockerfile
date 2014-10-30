@@ -13,6 +13,6 @@ ENV CHADO_DB_NAME chado
 ENV CHADO_DB_HOST chado
 
 # Perl bits
-RUN apt-get install -qqy libtemplate-perl libxml-simple-perl libdbi-perl libgo-perl libdbd-pg-perl libdbix-dbstag-perl libsql-translator-perl
+RUN apt-get install -qqy libtemplate-perl libxml-simple-perl libdbi-perl libgo-perl libdbd-pg-perl libdbix-dbstag-perl libsql-translator-perl bioperl
 RUN sed -i 's/stag-storenode.pl/stag-storenode/' lib/Bio/Chado/Builder.pm
 RUN perl Makefile.PL && make && make install

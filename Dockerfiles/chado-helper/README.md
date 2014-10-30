@@ -24,6 +24,15 @@ docker run --rm --link db:chado postgres \
     --login \
     chadouser
 ```
+And create the `chado` database:
+
+```sh
+docker run --rm --link db:chado postgres \
+    createdb \
+    -h chado \
+    -U chadouser
+    chado
+```
 
 ### Load the basic schema
 
