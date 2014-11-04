@@ -12,7 +12,7 @@ process cleanGenome {
         
   script:
   """
-  awk '/^>/ {print \$1} !/^>/ {print \$0}' $genomeIn | sed "s/\015//"
+  awk '/^>/ {print \$1} !/^>/ {print toupper(\$0)}' $genomeIn | sed "s/\015//"
   """ 
 }
 
