@@ -1,35 +1,48 @@
 #!/usr/bin/env nextflow
 
-genome = file(params.genome)
-strainName = genome.getParent().getBaseName()
-outFilename = params.out
+genomeIn = file(params.genome)
+strainName = genomeIn.getParent().getBaseName()
 
 process cleanGenome {
   input:
-  genome
+  genomeIn
 
   output:
   stdout into cleanGenome
         
   script:
   """
-  awk '/^>/ && !/[.*]/ {print(\$0, "[$strainName]")} /^>/ && /[.*]/ {print \$0} /^[^>]/ {print(toupper(\$0))}' '$genome' | sed "s/\015//"
-  """
+  awk '/^>/ {print \$1} !/^>/ {print \$0}' $genomeIn | sed "s/\015//"
+  """ 
 }
 
 process trainAndCallGenes {
   input:
-  file genome from cleanGenome
+  file 'genome.fasta' from cleanGenome
 
   output:
-  file 'out.gff3' into annotation
+  set 'genome.fasta', 'genemark.gtf' into basicGTF
 
   """
-  gm_es.pl --min_contig 5000 --BP ON $genome
-  gt gtf_to_gff3 -tidy genemark_hmm.gtf | gt gff3 -sort -tidy -o out.gff3
+  gmes_petap.pl --ES --fungus --sequence genome.fasta 
+  """ 
+}
+
+process cleanup {
+  input:
+  set 'genome.fasta', 'genemark.gtf' from basicGTF
+
+  output:
+  file 'out.gff3.gz' into cleanAnnotations
+  
+  """
+  gt gtf_to_gff3 -tidy genemark.gtf | gt gff3 -sort -tidy -o out.gff3
+  echo "##FASTA" >> out.gff3
+  awk '/^>/ && !/[.*]/ {print \$0, "[$strainName]"} !/^>/ || /[.*]/ {print \$0}' genome.fasta >> out.gff3
+  gzip -c --best out.gff3 > out.gff3.gz
   """
 }
 
-annotation.subscribe { gff3 ->
-  gff3.copyTo(outFilename)
+cleanAnnotations.subscribe { gff3 ->
+  gff3.copyTo(genomeIn.getParent() + "/genemark.gff3.gz")
 }
