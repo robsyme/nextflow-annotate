@@ -1,48 +1,60 @@
 #!/usr/bin/env nextflow
 
-genomeIn = file(params.genome)
-strainName = genomeIn.getParent().getBaseName()
+params.genome = '**/scaffolds.fasta'
+
+(strainNames, genomes) = Channel.fromPath(params.genome).separate(2) { path -> [path.getParent().getBaseName(), path] };
+nameAndSequence = strainNames.merge( genomes ) {name, file -> [name, file]}
 
 process cleanGenome {
   input:
-  genomeIn
+  set strainName, 'raw.fasta' from nameAndSequence
 
   output:
-  stdout into cleanGenome
-        
-  script:
+  set strainName, 'genome.fasta' into cleanGenome
+
   """
-  awk '/^>/ {print \$1} !/^>/ {print toupper(\$0)}' $genomeIn | sed "s/\015//"
-  """ 
+  awk '/^>/ {print \$1} !/^>/ {print toupper(\$0)}' raw.fasta | sed "s/\015//" > genome.fasta
+  """
 }
 
 process trainAndCallGenes {
+  maxForks 7
+  
   input:
-  file 'genome.fasta' from cleanGenome
+  set strainName, 'genome.fasta' from cleanGenome
 
   output:
-  set 'genome.fasta', 'genemark.gtf' into basicGTF
+  set strainName, 'genemark.gtf' into basicGTF
 
   """
-  gmes_petap.pl --ES --fungus --sequence genome.fasta 
-  """ 
+  gmes_petap.pl --ES --fungus --sequence genome.fasta
+  """
 }
 
-process cleanup {
+process gtfToGFF3 {
   input:
   set 'genome.fasta', 'genemark.gtf' from basicGTF
 
   output:
-  file 'out.gff3.gz' into cleanAnnotations
-  
+  set strainName, 'out.gff3' into cleanAnnotations
+
   """
   gt gtf_to_gff3 -tidy genemark.gtf | gt gff3 -sort -tidy -o out.gff3
-  echo "##FASTA" >> out.gff3
-  awk '/^>/ && !/[.*]/ {print \$0, "[$strainName]"} !/^>/ || /[.*]/ {print \$0}' genome.fasta >> out.gff3
-  gzip -c --best out.gff3 > out.gff3.gz
   """
 }
 
-cleanAnnotations.subscribe { gff3 ->
-  gff3.copyTo(genomeIn.getParent() + "/genemark.gff3.gz")
+process renameIDs {
+  input:
+  set strainName, 'in.gff3' from cleanAnnotations
+
+  output:
+  set strainName, 'out.gff3' into renamedAnnotations
+
+  """
+  rename-gff-ids $strainName in.gff3 > out.gff3
+  """
+}
+
+renamedAnnotations.subscribe { strainName, gff ->
+  gff.copyTo("$strainName.noseq.gff3")
 }
