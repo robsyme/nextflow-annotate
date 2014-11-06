@@ -34,24 +34,16 @@ process gtfToGFF3 {
   set strainName, 'genemark.gtf' 'genome.fasta' from basicGTF
 
   output:
-  set strainName, 'out.gff3' into cleanAnnotations
-
-  """
-  gt gtf_to_gff3 -tidy genemark.gtf | gt gff3 -sort -tidy -o out.gff3
-  echo "##FASTA" >> out.gff3
-  awk '/^>/ {print \$0, "[${strainName}]"} !/^>/ {print \$0}' genome.fasta >> out.gff3
-  """
-}
-
-process renameIDs {
-  input:
-  set strainName, 'in.gff3' from cleanAnnotations
-
-  output:
   set strainName, 'out.gff3.gz' into renamedAnnotations
 
   """
-  rename-gff-ids $strainName in.gff3 > out.gff3
+  gt gtf_to_gff3 -tidy genemark.gtf \
+    | gt gff3 -sort -tidy \
+    | rename-gff-ids $strainName > out.gff3
+  rename-codons $strainName genemark.gtf >> out.gff3
+  sort -k1,1 -k4,4n out.gff3 > tmp && mv tmp out.gff3
+  echo "##FASTA" >> out.gff3
+  awk '/^>/ {print \$0, "[${strainName}]"} !/^>/ {print \$0}' genome.fasta >> out.gff3
   gzip --best out.gff3
   """
 }

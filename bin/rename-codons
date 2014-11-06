@@ -13,35 +13,39 @@ def cds(id_count)
   sprintf("%s_C%05d", $strain_id, id_count)
 end
 
+def start_codon(id_count)
+  sprintf("%s_START_%05d", $strain_id, id_count)
+end
+
+def stop_codon(id_count)
+  sprintf("%s_STOP_%05d", $strain_id, id_count)
+end
+
 reached_fasta = false
 
 ARGF.each do |line|
   if line =~ /##FASTA/
     reached_fasta = true
   end
-  if line =~ /^#/ || reached_fasta
-    puts line
+  if line !~ /^\S+\t\S+\t\S+_codon/ || reached_fasta
     next
   end
-    
+
   split = line.chomp.split("\t")
-  attributes = Hash[split[8].split(";").map{|pair| pair.split("=")}]
+  attributes = Hash[split[8].split(";").map{|pair| pair.split(" ")}]
+  id_count = attributes["gene_id"].match(/^"(\d+)_/)[1]
   attributes.delete("gene_id")
   attributes.delete("transcript_id")
+  attributes.delete("gene_name")
+  attributes.delete("transcript_name")
 
   case split[2].downcase
-  when "gene"
-    id_count = attributes["ID"].match(/\d+$/)[0]
-    attributes["ID"] = gene(id_count)
-    attributes["Name"] = gene(id_count)
-  when "mrna"
-    id_count = attributes["ID"].match(/\d+$/)[0]
-    attributes["ID"] = mrna(id_count)
+  when "start_codon"
+    attributes["ID"] = start_codon(id_count)
     attributes["Parent"] = gene(id_count)
-  when "cds"
-    id_count = attributes["Parent"].match(/\d+$/)[0]
-    attributes["ID"] = cds(id_count)
-    attributes["Parent"] = mrna(id_count)
+  when "stop_codon"
+    attributes["ID"] = stop_codon(id_count)
+    attributes["Parent"] = gene(id_count)
   end
 
   split[8] = attributes.map{|attribute| attribute.join("=")}.join(";")
