@@ -13,12 +13,12 @@ process cleanGenome {
   set strainName, 'genome.fasta' into cleanGenome
 
   """
-  awk '/^>/ {print \$1} !/^>/ {print toupper(\$0)}' raw.fasta | sed "s/\015//" > genome.fasta
+  rename-fasta raw.fasta "${strainName}_scaffold" > genome.fasta
   """
 }
 
 process trainAndCallGenes {
-  maxForks 7
+  //maxForks 7
   
   input:
   set strainName, 'genome.fasta' from cleanGenome
@@ -33,7 +33,7 @@ process trainAndCallGenes {
 
 process gtfToGFF3 {
   input:
-  set 'genome.fasta', 'genemark.gtf' from basicGTF
+  set strainName, 'genemark.gtf' from basicGTF
 
   output:
   set strainName, 'out.gff3' into cleanAnnotations
