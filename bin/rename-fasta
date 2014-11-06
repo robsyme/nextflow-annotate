@@ -3,7 +3,7 @@
 # How many sequences are there in the file?
 fasta = File.open(ARGV.shift, 'r')
 sequence_count = fasta.
-  lines.
+  each_line.
   find_all { |line| line =~ /^>/ }.
   count
 
@@ -33,4 +33,4 @@ fasta.each_line do |line|
   end
 end
 
-sequence.chars.each_slice(20) { |a| puts a.join }
+sequence.chars.each_slice(80) { |a| puts a.join }
