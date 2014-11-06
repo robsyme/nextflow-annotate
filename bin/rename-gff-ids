@@ -15,7 +15,9 @@ end
 
 ARGF.each do |line|
   break if line =~ /##FASTA/
-  next if line =~ /^#/
+  if line =~ /^#/
+    puts line
+  end
     
   split = line.chomp.split("\t")
   attributes = Hash[split[8].split(";").map{|pair| pair.split("=")}]
