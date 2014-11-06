@@ -13,10 +13,15 @@ def cds(id_count)
   sprintf("%s_C%05d", $strain_id, id_count)
 end
 
+reached_fasta = false
+
 ARGF.each do |line|
-  break if line =~ /##FASTA/
-  if line =~ /^#/
+  if line =~ /##FASTA/
+    reached_fasta = true
+  end
+  if line =~ /^#/ || reached_fasta
     puts line
+    next
   end
     
   split = line.chomp.split("\t")
