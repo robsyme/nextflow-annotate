@@ -13,9 +13,9 @@ process cleanGenome {
   stdout into cleanGenomes
         
   script:
-  """
+  '''
   awk '/^>/ && !/[.*]/ {print(\$0, "[$strainName]")} /^>/ && /[.*]/ {print \$0} /^[^>]/ {print(toupper(\$0))}' '$genome' | sed "s/\015//"
-  """
+  '''
 }
 
 (fastaForGFF, fastaForAug) = cleanGenomes.separate(2){ [it, it] }
@@ -27,9 +27,9 @@ process cegmaGFFtoFullerGFF {
   output:
   stdout fullGFF
 
-  """
+  '''
   fullerCegmaGFF.rb $cegmaFile
-  """
+  '''
 }
 
 process cegmaGFFToGenbank {
@@ -42,9 +42,9 @@ process cegmaGFFToGenbank {
   output:
   file 'out.gb' into trainingGenbank
   
-  """
+  '''
   gff2gbSmallDNA.pl $gff $fasta 5000 out.gb
-  """
+  '''
 }
 
 process trainAndCallGenes {
@@ -57,11 +57,11 @@ process trainAndCallGenes {
   output:
   file 'out.txt' into trainedFile
 
-  """
+  '''
   optimize_augustus.pl --species=fusarium_graminearum $trainingGenbank
   etraining --species=fusarium_graminearum $trainingGenbank
   augustus --species=fusarium_graminearum --gff3=on $genome > out.txt
-  """
+  '''
 }
 
 trainedFile.subscribe { trained ->
