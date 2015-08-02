@@ -4,7 +4,7 @@ MAINTAINER Rob Syme <rob.syme@gmail.com>
 
 RUN apt-get update && apt-get install -qqy build-essential
 
-ADD http://bioinf.uni-greifswald.de/augustus/binaries/old/augustus-3.0.3.tar.gz /opt/
+ADD http://bioinf.uni-greifswald.de/augustus/binaries/augustus-3.1.tar.gz /opt/
 RUN cd /opt && \
     tar -xzvf augustus* && \
     rm -rf *.tar.gz && \
