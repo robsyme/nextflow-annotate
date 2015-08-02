@@ -1,9 +1,10 @@
 # BUSCO in docker
 
 This is a repository that contains the
-[BUSCO](http://busco.ezlab.org/) software. It contains preconfigured
-installations of the BUSCO prerequisites, including Augustus 3.0,
-hmmer, ncbi-blast+, and emboss.
+[BUSCO](http://busco.ezlab.org/) software for 'assessing genome
+assembly and annotation completeness with single-copy orthologs'. It
+contains preconfigured installations of the BUSCO prerequisites,
+including Augustus 3.0, hmmer, ncbi-blast+, and emboss.
 
 ## Using the container
 
