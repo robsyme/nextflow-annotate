@@ -1,16 +1,22 @@
 #!/usr/bin/env nextflow
 
-f1 = Channel.fromPath(params.fasta)
+(f1, f2, f3) = Channel.fromPath(params.fasta).separate(3){ [it,it,it] }
+
+params.outdir = 'proteinortho_out'
+outdir = file(params.outdir)
+outdir.mkdirs()
+
 
 process indexGenomes {
   container 'robsyme/proteinortho'
-  storeDir 'dbdir'
+  storeDir outdir
   
   input: 
-  file '*' from f1.tap{ f2 }.toList()
+  file '*' from f1.toList()
 
   output:
   file '*' into db1
+  file '*' into db2
   
   "proteinortho5.pl -step=1 *.fasta"
 }
@@ -20,34 +26,35 @@ f2.eachWithIndex{ unit, idx -> list.add(idx) }
 
 process runBlasts {
   container 'robsyme/proteinortho'
-  storeDir 'dbdir'
+  storeDir outdir
 
   input:
-  file '*' from db1.tap{ db2 }
-  file "*" from f2.tap{ f3 }.toList()
+  file '*' from db1
+  file "*" from f2.toList()
   each index from list[0..-3]
 
   output:
-  'myproject.*'
+  file 'myproject.*' into blastresults
 
-  "proteinortho5.pl -step=2 -startat=$index -stopat=$index -cpus=2 *.fasta"
+  "proteinortho5.pl -verbose -step=2 -startat=$index -stopat=$index -cpus=2 *.fasta"
 }
 
 process performClustering {
   container 'robsyme/proteinortho'
-  storeDir 'dbdir'
+  storeDir outdir
 
   input:
+  file '*' from blastresults
   file '*' from db2
-  file '*' from f3
+  file '*' from f3.toList()
 
   output:
-  '*' into debug
-
-  "proteinortho5.pl -step=2 -startat=$index -stopat=$index -cpus=2 *.fasta"
+  file 'myproject.*' into proteinortho_out
+  
+  "proteinortho5.pl -step=3 -singles -verbose *.fasta"
 }
 
-debug.view()
+proteinortho_out.flatten().subscribe{ println("Proteinortho output file: $it") }
 
 
 
