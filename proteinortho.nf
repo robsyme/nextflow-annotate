@@ -2,6 +2,7 @@
 
 (f1, f2, f3) = Channel.fromPath(params.fasta).separate(3){ [it,it,it] }
 
+params.cpus = 1
 params.outdir = 'proteinortho_out'
 outdir = file(params.outdir)
 outdir.mkdirs()
@@ -36,7 +37,7 @@ process runBlasts {
   output:
   file 'myproject.*' into blastresults
 
-  "proteinortho5.pl -verbose -step=2 -startat=$index -stopat=$index -cpus=2 *.fasta"
+  "proteinortho5.pl -verbose -step=2 -startat=$index -stopat=$index -cpus=${params.cpus} *.fasta"
 }
 
 process performClustering {
