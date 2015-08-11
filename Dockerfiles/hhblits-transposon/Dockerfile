@@ -1,7 +1,13 @@
-FROM robsyme/hhblits:latest
+FROM ubuntu:14.04
 
 MAINTAINER Rob Syme <rob.syme@gmail.com>
+ENV DEBIAN_FRONTEND noninteractive
 
+RUN apt-get update && apt-get install -qqy hhsuite ffindex samtools
+RUN mkdir /databases
 WORKDIR /databases
-ADD http://downloads.sourceforge.net/project/jamg/databases/transposons.hhblits.tar.bz2 /databases/
-RUN tar -xjvf transposons.hhblits.tar.bz2 && rm transposons.hhblits.tar.bz2
+
+# One of two options here - either download it during docker build
+ADD http://downloads.sourceforge.net/project/jamg/databases/transposons.hhblits.tar.bz2 .
+# ... or download it yourself next to this Dockerfile and then docker build.
+#ADD transposons.hhblits.tar.bz2 .

@@ -1,3 +1,3 @@
-FROM robsyme/repeatmasker-onbuild:v4.0.5
+FROM robsyme/repeatmasker-onbuild:latest
 
 MAINTAINER Rob Syme <rob.syme@gmail.com>

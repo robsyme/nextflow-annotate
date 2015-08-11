@@ -23,7 +23,7 @@ build and use your docker image with:
 ```sh
 docker build -t myrepeatmasker .
 cd /path/to/data
-docker run -v $PWD:/in -w /in myrepeatmasker scaffolds.fasta
+docker run -v $PWD:/in -w /in myrepeatmasker RepeatMasker scaffolds.fasta
 ```
 
 Note that only the current directory (and its children) is mounted
