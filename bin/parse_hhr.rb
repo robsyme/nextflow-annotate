@@ -59,8 +59,10 @@ glimmer = File.open('out.glimmer', 'w')
 uid_counter = Hash.new(0)
 
 while infile.gets
+  p $_
   case $_
   when /^\W*Query\s+(?<scaffold_id>\S+)_(?<scaffold_hit_num>\d+) \[(?<orf_start>\d+) - (?<orf_end>\d+)\](?<rev> \(REVERSE SENSE\))?/
+    p $~
     scaffold_id = $~[:scaffold_id]
     scaffold_hit_num = $~[:scaffold_hit_num].to_i
     reverse = ! $~[:rev].nil?
@@ -74,6 +76,7 @@ while infile.gets
     next if options[:align_col_cut] > $~[:alignment_length].to_i
     next if options[:template_aln_size_cut] > ($~[:hit_start].to_i - $~[:hit_stop].to_i).abs
     
+    p $~
     hit_id = $~[:hit_desc].split.first
     hit_desc = $~[:hit_desc].split[1..-1].join(' ')
 

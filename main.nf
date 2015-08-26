@@ -1,15 +1,14 @@
 #!/usr/bin/env nextflow
 
-
 params.reference = 'data/genome.fasta'
 params.scaffoldmin = 1000 // Minimum scaffold size to consider
 params.minsize = 100 // Minimum exon size
 params.species = 'fungi' // Name of species passed to RepeatMasker
 params.maxintronlength = 500 // Maximum intron length
+params.minintronlength = 10 // Maximum intron length
 params.bamfiles = 'data/bams/*.bam'
 params.pasaconf = 'conf/alignAssembly.conf' // Pasa configuration file to set db name etc.
-params.leftreads = 'data/reads/left.fastq'
-params.rightreads = 'data/reads/right.fastq'
+params.reads = 'data/reads/all.fastq'
 reference_raw = file(params.reference)
 
 // Remove small scaffolds from analysis.
@@ -26,8 +25,23 @@ process remove_small_scaffolds {
   file 'ref_trimmed.fasta' into ref_trimmed_for_trinity
   file 'ref_trimmed.fasta' into ref_trimmed_for_bamtohints
   file 'ref_trimmed.fasta' into ref_trimmed_for_pasa
+  file 'ref_trimmed.fasta' into ref_trimmed_for_gff2gb
+  file 'ref_trimmed.fasta' into ref_trimmed_for_busco
+  file 'ref_trimmed.fasta' into ref_trimmed_for_cufflinks
 
   "trim_fasta_all.pl -i ref.fasta -out ref_trimmed.fasta -length ${params.scaffoldmin}"
+}
+
+process busco {
+  container 'robsyme/busco'
+  
+  input:
+  file 'ref.fasta' from ref_trimmed_for_busco
+
+  output:
+  stdout into debug
+  
+  "ln -s /opt/busco/lineages/fungi . && busco -in ref.fasta -o custom --lineage fungi"
 }
 
 // Generate a fasta file of open reading frames.
@@ -75,16 +89,15 @@ process hhblits_transposon {
   container 'robsyme/hhblits-transposon'
   
   input:
-  file 'orfs.fasta' from clean_orfs_for_transposons.splitFasta( by: 1000 )
+  file 'orfs.fasta' from clean_orfs_for_transposons.splitFasta( by: 500 )
 
   output:
   stdout into hhblits_transposon
 
   """
-samtools faidx orfs.fasta
-for id in `cut -f1 orfs.fasta.fai`; do
-  samtools faidx orfs.fasta \$id\
-  | hhblits -i stdin -o stdout -d /databases/transposons -e 1e-5 -E 1e-5 -id 80 -n 2
+csplit --elide-empty-files --quiet orfs.fasta '/^>/' '{*}'
+for orf in xx*; do
+  hhblits -i \$orf -o stdout -d /databases/transposons -e 1e-5 -E 1e-5 -id 80 -n 2
 done
 """
 }
@@ -93,16 +106,15 @@ process hhblits_fungi {
   container 'robsyme/hhblits-fungi'
   
   input:
-  file 'orf.fasta' from clean_orfs_for_fungi.splitFasta( by: 1000 )
+  file 'orfs.fasta' from clean_orfs_for_fungi.splitFasta( by: 500 )
 
   output:
   stdout into hhblits_fungi
 
 """
-samtools faidx orfs.fasta
-for id in `cut -f1 orfs.fasta.fai`; do
-  samtools faidx orfs.fasta \$id \
-  | hhblits -i stdin -o stdout -d /databases/fungal_50kclus -e 1e-5 -E 1e-5 -id 80 -n 2
+csplit --elide-empty-files --quiet orfs.fasta '/^>/' '{*}'
+for orf in xx*; do
+  hhblits -i \$orf -o stdout -d /databases/fungal_50kclus -e 1e-5 -E 1e-5 -id 80 -n 2
 done
 """
 }
@@ -161,6 +173,7 @@ process repeatmasker {
   file 'ref.fasta.out.gff' into repeats_gff_for_hints
   file 'ref.fasta.out.gff' into repeats_gff_for_softmasking
   file 'ref.fasta.masked' into ref_masked_for_golden
+  file 'ref.fasta.masked' into ref_masked_for_codingquarry
 
   "RepeatMasker -qq -frag 5000000 -gff -species ${params.species} -no_is ref.fasta"
 }
@@ -208,8 +221,37 @@ process merge_bams {
   output:
   file 'merged.bam' into mapped_reads
   file 'merged.bam' into mapped_reads_for_bamtohints
+  file 'merged.bam' into mapped_reads_for_cufflinks
 
   "samtools merge merged.bam *.bam"
+}
+
+process cufflinks {
+  container 'robsyme/cufflinks'
+
+  input:
+  file 'merged.bam' from mapped_reads_for_cufflinks
+
+  output:
+  file 'transcripts.gtf' into transcriptwtranscripts_gtf_for_codingquarry
+
+  "cufflinks --max-intron-length ${params.maxintronlength} --min-intron-length ${params.minintronlength} merged.bam"
+}
+
+process codingquarry {
+  container 'robsyme/codingquarry'
+
+  input:
+  file 'ref.fasta' from ref_masked_for_codingquarry
+  file 'transcripts.gtf' from transcriptwtranscripts_gtf_for_codingquarry
+
+  output:
+  file 'out/PredictedPass.gff3' into codingquarry_gff
+  
+  '''
+CufflinksGTF_to_CodingQuarryGFF3.py transcripts.gtf > transcripts.gff
+CodingQuarry -f ref.fasta -t transcripts.gff
+'''
 }
 
 process split_bams_by_scaffold {
@@ -263,13 +305,12 @@ process denovo_trinity {
   container 'robsyme/trinity'
 
   input:
-  file 'left.fastq' from file(params.leftreads)
-  file 'right.fastq' from file(params.rightreads)
+  file 'reads.fastq' from file(params.reads)
   
   output:
   file 'trinity_out_dir.Trinity.fasta' into denovo_trinity
 
-  "Trinity --seqType fq --left left.fastq --right right.fastq --max_memory 2G --CPU 2 --jaccard_clip --full_cleanup"
+  "Trinity --seqType fq --single reads.fastq --max_memory 2G --CPU 2 --jaccard_clip --full_cleanup"
 }
 
 process bam_to_hints {
@@ -298,12 +339,11 @@ process pasa {
   file 'alignAssembly.config' from file(params.pasaconf)
 
   output:
-  file '*.assemblies.fasta.transdecoder.gff3' into pasa_gff3_for_golden
-  file '*.assemblies.fasta.transdecoder.pep' into pasa_pep_for_golden
-  file '*.assemblies.fasta.transdecoder.cds' into pasa_cds_for_golden
-  file '*.assemblies.fasta.transdecoder.genome.gff3' into pasa_genomegff_for_golden
-  file '*.assemblies.fasta' into pasa_fasta_for_golden
-
+  file '*.assemblies.fasta.transdecoder.pep' into pasa_cds_for_golden
+  file '*.assemblies.fasta.transdecoder.genome.gff3' into pasa_gff_for_fl
+  file '*.assemblies.fasta.transdecoder.pep' into pasa_cds_for_fl
+  file 'ref.fasta' into reference_genome
+  
   """
 grep '^>' DN_raw.fasta          \
 | awk '{print(substr(\$1, 2))}' \
@@ -326,7 +366,7 @@ cat DN_raw.fasta GG_raw.fasta > transcripts.fasta
   --CPU 2
 
 /opt/pasa/scripts/build_comprehensive_transcriptome.dbi \
--c ../../../alignAssembly.config                        \
+-c alignAssembly.config                        \
 -t transcripts.fasta                                    \
 --min_per_ID 95                                         \
 --min_per_aligned 30
@@ -337,7 +377,100 @@ cat DN_raw.fasta GG_raw.fasta > transcripts.fasta
 """
 }
 
+// Pull out the full-length transcripts identified by pasa (and Transdecoder)
+process find_full_length_proteins {
+  container 'robsyme/bioruby'
+  
+  input:
+  stdin pasa_cds_for_golden.map{ it.text }
 
-pasa_genomegff_for_golden.subscribe{ println("GOLDEN_GFF: $it") }
+  output:
+  stdout into full_pasa_pep_fasta
+
+  """
+#!/usr/bin/env ruby
+require 'bio'
+
+Bio::FlatFile.auto(ARGF).each do |entry|
+  puts entry if entry.definition =~ /type:complete/
+end
+"""
+}
+
+process exclude_partial_genes_from_gff {
+  container 'robsyme/bioruby'
+
+  input:
+  file 'hits.gff3' from pasa_gff_for_fl
+  file 'peptide.fasta' from pasa_cds_for_fl
+  
+  output:
+  stdout into full_length_gff
+
+  '''
+#!/usr/bin/env ruby
+require "bio"
+require "set"
+
+full_length_ids = Bio::FlatFile
+.open("peptide.fasta")
+.find_all{ |entry| entry.definition =~ /type:complete/ }
+.map{ |entry| entry.entry_id }
+.to_set
+
+File.open("hits.gff3").each do |line|
+  next unless line =~ /ID=(cds.)?([^\\|]+)\\|/
+  next unless full_length_ids.include?($2)
+  scaffold_name = line.split("\t").first
+  puts line
+end
+'''
+}
+
+// The input to Augustus training requires that we provide the
+// 'golden' annotations as a genbank format, but it's not just any
+// genbank format, there are some restrictions.  
+// 
+// For the best results, we should remove proteins that are too
+// similar. Augusutus will also assume that all nucleotides not
+// annotated as coding sequence are non-coding sequence, so we need to
+// trim the output to the coding sequence += a small margin either
+// side. Note that this is not simply a conversion of gff to genbank.
+process gff_to_genbank {
+  container 'robsyme/augustus'
+
+  input:
+  file 'genome.fasta' from ref_trimmed_for_gff2gb
+  file 'full_length_genes.gff' from full_length_gff
+
+  output:
+  file 'out.gb' into golden_genbank_for_training
+
+  "gff2gbSmallDNA.pl full_length_genes.gff genome.fasta 1000 out.gb"
+}
+
+process train_augustus {
+  container 'robsyme/augustus'
+
+  input:
+  file 'custom.gb' from golden_genbank_for_training
+
+  output:
+  file 'custom.tar.gz' into augustus_trained_parameters
+
+  """
+mkdir -p /opt/augustus/config/species/custom/
+cp /opt/augustus/config/species/generic/generic_parameters.cfg /opt/augustus/config/species/custom/custom_parameters.cfg
+cp /opt/augustus/config/species/generic/generic_weightmatrix.txt /opt/augustus/config/species/custom/
+/opt/augustus/bin/etraining --species=custom custom.gb
+/opt/augustus/scripts/optimize_augustus.pl --species=custom custom.gb
+tar -czvf custom.tar.gz /opt/augustus/config/species/custom
+"""
+}
 
 debug.subscribe{ println("DEBUG: $it") }
+
+
+// TODO: Evaluate whether it is at all helpful to supply cufflinks gtf as 'exonpart' hints to augustus. The problem with cufflinks is the concatentation of overlapping transcripts. When those transcripts are from opposite directions, supplying a stranded hint to augustus may prevent the annotation of one of genes that form the fused transcript.
+// TODO: Perhaps I can do ORF detection on the cufflinks transcripts and then run those ORFs through pfam and signalP detected domains can be converted into hints for augustus.
+

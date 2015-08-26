@@ -12,8 +12,9 @@ RUN tar -xzvf BUSCO_v1.0.tar.gz \
     && sed -i 's/^#!\/bin\/python/#!\/usr\/bin\/env python/' BUSCO_v1.0.py \
     && chmod +x BUSCO_v1.0.py \
     && ln -s BUSCO_v1.0.py busco
+ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/augustus/bin:/opt/augustus/scripts:/opt/busco
+
+ADD http://busco.ezlab.org/files/fungi_buscos.tar.gz /opt/busco/lineages/
+RUN cd /opt/busco/lineages/ && tar -xzf *.tar.gz
+
 ENTRYPOINT ["/bin/bash"]
-
-
-
-
