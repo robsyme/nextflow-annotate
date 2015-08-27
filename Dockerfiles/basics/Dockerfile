@@ -24,4 +24,7 @@ RUN apt-get install -qqy emboss
 # HMMER
 RUN apt-get install -qqy hmmer
 
+# Bedtools
+RUN apt-get install -qqy bedtools
+
 ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/augustus/bin:/opt/tophat:/opt/samtools
