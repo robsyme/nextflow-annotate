@@ -31,6 +31,8 @@ process remove_small_scaffolds {
 // sequences that have mitochondrial blast hits to more than 20% of
 // their length.
 process filter_mitochondrial {
+  container 'robsyme/basics'
+
   input:
   file 'ref_trimmed.fasta' from ref_trimmed_for_filter_mito
 
@@ -68,7 +70,7 @@ awk '\$2 > 0 && \$5 <= 0.8 {print \$1}' coverage.txt \
 // database to identify and mask repetitive sequence in the nuclear
 // genome.
 process repeatmasker {
-  container 'repeatmasker'
+  container 'registry.robsyme.com/repeatmasker'
 
   input:
   file 'ref.fasta' from scaffolds_for_repeatmasker
@@ -84,6 +86,8 @@ process repeatmasker {
 // ease of handling. Differentiating conditions is of no use to this
 // pipeline.
 process merge_bams {
+  container 'robsyme/basics'
+  
   input:
   file '*.bam' from Channel.fromPath(params.bamfiles).toList()
 
@@ -103,20 +107,14 @@ process cufflinks {
   output:
   file 'transcripts.gtf' into transcripts_gtf_for_codingquarry
   file 'transcripts.gtf' into transcripts_gtf_for_orf_extraction
-  file 'transcripts.gtf' into transcripts_gtf_for_output
 
   "cufflinks --overlap-radius ${params.cufflinks_overlap_radius} --pre-mrna-fraction ${params.cufflinks_pre_mrna_fraction} --min-isoform-fraction ${params.cufflinks_min_isoform_fraction} --min-intron-length ${params.minintronlength} --max-intron-length ${params.maxintronlength} merged.bam"
-}
-
-transcripts_gtf_for_output.subscribe { file -> 
-  def filename = sprintf( './%s_overlap%d_premrna%.0f_minisoform%.0f.gtf', ['cufflinks', params.cufflinks_overlap_radius, params.cufflinks_pre_mrna_fraction * 100, params.cufflinks_min_isoform_fraction * 100])
-  file.copyTo(filename) 
 }
 
 // The CodingQuarry denovo gene predictor uses intron/exon boundary
 // information to improve the accuracy of gene annotation.
 process codingquarry {
-  container 'robsyme/codingquarry'
+  container 'robsyme/codingquarry:1.2'
 
   input:
   file 'ref.fasta' from ref_masked_for_codingquarry
@@ -124,17 +122,11 @@ process codingquarry {
 
   output:
   file 'out/PredictedPass.gff3' into codingquarry_gff_for_gff2gb
-  file 'out/PredictedPass.gff3' into codingquarry_out
-  
+
   '''
 CufflinksGTF_to_CodingQuarryGFF3.py transcripts.gtf > transcripts.gff
 CodingQuarry -f ref.fasta -t transcripts.gff
 '''
-}
-
-codingquarry_out.subscribe{ file -> 
-  def filename = sprintf( './%s_overlap%d_premrna%.0f_minisoform%.0f.gff3', ['CodingQuarry', params.cufflinks_overlap_radius, params.cufflinks_pre_mrna_fraction * 100, params.cufflinks_min_isoform_fraction * 100])
-  file.copyTo(filename)
 }
 
 process extract_cufflinks_transcripts {
@@ -155,7 +147,7 @@ gt extractfeat -type exon -join -seqfile ref.fasta -matchdescstart transcripts.g
 
 // Generate a fasta file of open reading frames.
 process identify_orfs {
-  container 'robsyme/emboss'
+  container 'robsyme/emboss:6.6.0'
   
   input: 
   file 'transcripts.fasta' from cufflinks_transcripts
@@ -167,7 +159,7 @@ process identify_orfs {
 }
 
 process find_pfam_domains_in_transcript_orfs {
-  container 'robsyme/pfam'
+  container 'robsyme/pfam:28.0'
 
   input:
   file 'orfs.fasta' from orfs_fasta.splitFasta(by: 1000)
@@ -181,6 +173,8 @@ hmmscan -E 1e-5 -o orf.domains /opt/Pfam-A.hmm orfs.fasta
 }
 
 process pfam_output_to_gff {
+  container 'robsyme/basics'
+  
   input:
   file 'orf.domains' from transcript_orf_domains
   file 'transcripts.gff3' from cufflinks_transcripts_gff
@@ -194,8 +188,12 @@ gff_transpose.rb --from orf_domains.gff3 --to transcripts.gff3 > domains.gff3
 """
 }
 
+// The training set for augustus requires that we supply short
+// snippets of 'golden' genes which are used for training. Everything
+// that is *not* identified as conding sequence is assumed to be
+// non-coding.
 process gff_to_genbank {
-  container 'robsyme/augustus'
+  container 'robsyme/augustus:3.1'
 
   input:
   file 'genome.fasta' from scaffolds_for_gff2gb
@@ -205,8 +203,24 @@ process gff_to_genbank {
   file 'out.gb' into golden_genbank_for_training
 
   script:
-  "gff2gbSmallDNA.pl full_length_genes.gff genome.fasta 1000 out.gb"
+  "gff2gbSmallDNA.pl full_length_genes.gff genome.fasta 200 out.gb"
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
