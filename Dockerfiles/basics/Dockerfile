@@ -16,7 +16,7 @@ RUN tar -xvf *.tar.bz2 && rm *.tar.bz2 && mv samtools* samtools \
 RUN apt-get install -qqy ncbi-blast+
 
 # Bioruby
-RUN gem install --no-rdoc --ro-ri bio
+RUN gem install bio
 
 # Emboss
 RUN apt-get install -qqy emboss
