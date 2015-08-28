@@ -130,6 +130,8 @@ CodingQuarry -f ref.fasta -t transcripts.gff
 }
 
 process extract_cufflinks_transcripts {
+  container 'robsyme/basics:0.3'
+
   input:
   file 'ref.fasta' from file(params.reference)
   file 'transcripts.gtf' from transcripts_gtf_for_orf_extraction
@@ -173,7 +175,7 @@ hmmscan -E 1e-5 -o orf.domains /opt/Pfam-A.hmm orfs.fasta
 }
 
 process pfam_output_to_gff {
-  container 'robsyme/basics'
+  container 'robsyme/basics:0.3'
   
   input:
   file 'orf.domains' from transcript_orf_domains
