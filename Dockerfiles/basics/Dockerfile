@@ -28,6 +28,6 @@ RUN apt-get install -qqy hmmer
 RUN apt-get install -qqy bedtools
 
 # Genome tools
-RUN apt-get install genometools
+RUN apt-get install -qqy genometools
 
 ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/augustus/bin:/opt/tophat:/opt/samtools
