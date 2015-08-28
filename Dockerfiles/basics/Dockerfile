@@ -28,8 +28,9 @@ RUN apt-get install -qqy hmmer
 RUN apt-get install -qqy bedtools
 
 # Genome tools
+WORKDIR /opt
 RUN apt-get install -qqy libcairo2-dev libpango1.0-dev
-ADD http://genometools.org/pub/genometools-1.5.6.tar.gz .
+ADD http://genometools.org/pub/genometools-1.5.6.tar.gz ./
 RUN tar -xvf genometools-* && rm -f *.tar.gz && mv genometools* genometools
 RUN cd genometools && make 64bit=yes opt=yes universal=no && sudo make install
 
