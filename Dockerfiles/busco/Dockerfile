@@ -12,9 +12,14 @@ RUN tar -xzvf BUSCO_v1.0.tar.gz \
     && sed -i 's/^#!\/bin\/python/#!\/usr\/bin\/env python/' BUSCO_v1.0.py \
     && chmod +x BUSCO_v1.0.py \
     && ln -s BUSCO_v1.0.py busco
-ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/augustus/bin:/opt/augustus/scripts:/opt/busco
+
+WORKDIR /opt/gt
+ADD http://genometools.org/pub/binary_distributions/gt-1.5.7-Linux_x86_64-64bit-complete.tar.gz /opt/gt/
+RUN tar -xvf *.tar.gz && rm *.tar.gz && ln -s gt* current
 
 ADD http://busco.ezlab.org/files/fungi_buscos.tar.gz /opt/busco/lineages/
 RUN cd /opt/busco/lineages/ && tar -xzf *.tar.gz
+
+ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/augustus/bin:/opt/augustus/scripts:/opt/busco:/opt/gt/current/bin
 
 ENTRYPOINT ["/bin/bash"]

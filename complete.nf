@@ -193,7 +193,11 @@ gff_transpose.rb --from orf_domains.gff3 --to transcripts.gff3 > domains.gff3
 // The training set for augustus requires that we supply short
 // snippets of 'golden' genes which are used for training. Everything
 // that is *not* identified as conding sequence is assumed to be
-// non-coding.
+// non-coding. Here we take extract each of the genes +- 200 bp into
+// their own genbank file. In cases where genes are separated by less
+// than 200 bp, some coding sequence will be included in the neighbor,
+// and will be interpreted as 'non-coding' sequence by the augustus
+// training algorithm. A more sensible approach would be to divide the 
 process gff_to_genbank {
   container 'robsyme/augustus:3.1'
 
