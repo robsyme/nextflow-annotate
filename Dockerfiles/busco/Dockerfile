@@ -18,7 +18,7 @@ RUN cd /opt/busco/lineages/ && tar -xzf *.tar.gz
 
 # Genometools
 WORKDIR /opt/gt
-ADD http://genometools.org/pub/binary_distributions/gt-1.5.7-Linux_x86_64-64bit-complete.tar.gz /opt/gt/
+ADD http://genometools.org/pub/binary_distributions/gt-1.5.7-Linux_x86_64-64bit-barebone.tar.gz /opt/gt/
 RUN tar -xvf *.tar.gz && rm *.tar.gz && ln -s gt* current
 
 #Samtools
