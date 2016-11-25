@@ -7,12 +7,21 @@ RUN apt-get update && apt-get install -qqy \
     hmmer \
 	build-essential
 
-# Install TRF
+
+# Install TRF (for RepeatScout)
 WORKDIR /usr/local/bin
 RUN wget http://tandem.bu.edu/trf/downloads/trf407b.linux64 && mv trf*.linux64 trf && chmod +x trf
 
 # Basic workdir
 WORKDIR /usr/local
+
+# Install nseg (for RepeatScout)
+RUN mkdir nseg && \
+	cd nseg && \
+	wget ftp://ftp.ncbi.nih.gov/pub/seg/nseg/* && \
+	make && \
+	mv nseg ../bin && \
+	mv nmerge ../bin
 
 # Install RepeatScout
 RUN wget http://bix.ucsd.edu/repeatscout/RepeatScout-1.0.5.tar.gz && \
@@ -20,17 +29,7 @@ RUN wget http://bix.ucsd.edu/repeatscout/RepeatScout-1.0.5.tar.gz && \
 	rm RepeatScout*.tar.gz && \
 	mv RepeatScout* RepeatScout && \
 	cd RepeatScout && \
-	make
-	
-# Install nseg
-RUN mkdir nsegsrc && \
-	cd nsegsrc && \
-	wget ftp://ftp.ncbi.nih.gov/pub/seg/nseg/* && \
-	make && \
-	mv nseg .. && \
-	mv nmerge .. && \
-	cd .. && \
-	rm -r nsegsrc
+	make	
 
 # Install RMBlast
 RUN wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/rmblast/2.2.28/ncbi-rmblastn-2.2.28-x64-linux.tar.gz && \
