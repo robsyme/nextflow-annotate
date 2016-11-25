@@ -13,12 +13,24 @@ RUN wget http://tandem.bu.edu/trf/downloads/trf407b.linux64 && mv trf*.linux64 t
 
 # Basic workdir
 WORKDIR /usr/local
+
+# Install RepeatScout
 RUN wget http://bix.ucsd.edu/repeatscout/RepeatScout-1.0.5.tar.gz && \
 	tar -xvf RepeatScout* && \
 	rm RepeatScout*.tar.gz && \
 	mv RepeatScout* RepeatScout && \
 	cd RepeatScout && \
 	make
+	
+# Install nseg
+RUN mkdir nsegsrc && \
+	cd nsegsrc && \
+	wget ftp://ftp.ncbi.nih.gov/pub/seg/nseg/* && \
+	make && \
+	mv nseg .. && \
+	mv nmerge .. && \
+	cd .. && \
+	rm -r nsegsrc
 
 # Install RMBlast
 RUN wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/rmblast/2.2.28/ncbi-rmblastn-2.2.28-x64-linux.tar.gz && \
