@@ -4,14 +4,23 @@ MAINTAINER Rob Syme <rob.syme@gmail.com>
 
 RUN apt-get update && apt-get install -qqy \
     wget \
-    hmmer
+    hmmer \
+	build-essential
 
 # Install TRF
 WORKDIR /usr/local/bin
 RUN wget http://tandem.bu.edu/trf/downloads/trf407b.linux64 && mv trf*.linux64 trf && chmod +x trf
 
-# Install RMBlast
+# Basic workdir
 WORKDIR /usr/local
+RUN wget http://bix.ucsd.edu/repeatscout/RepeatScout-1.0.5.tar.gz && \
+	tar -xvf RepeatScout* && \
+	rm RepeatScout*.tar.gz && \
+	mv RepeatScout* RepeatScout && \
+	cd RepeatScout && \
+	make
+
+# Install RMBlast
 RUN wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/rmblast/2.2.28/ncbi-rmblastn-2.2.28-x64-linux.tar.gz && \
     tar -xzvf ncbi-rmblastn* && \
     rm ncbi-rmblastn*.tar.gz && \
@@ -19,13 +28,13 @@ RUN wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/rmblast/2.2.28/ncbi-rmblas
     rm -rf ncbi-rmblastn    
 
 # Install Blast+
-RUN wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.29/ncbi-blast-2.2.29+-x64-linux.tar.gz && \
+RUN wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-x64-linux.tar.gz && \
     tar -xzvf ncbi-blast* && \
     find ncbi-blast* -type f -executable -exec mv {} bin \; && \  
     rm -rf ncbi-blast*
     
 # Install RepeatMasker
-RUN wget http://www.repeatmasker.org/RepeatMasker-open-4-0-5.tar.gz && \
+RUN wget http://www.repeatmasker.org/RepeatMasker-open-4-0-6.tar.gz && \
     tar -xzvf RepeatMasker-open*.tar.gz && \
     rm -f RepeatMasker-open*.tar.gz
 
