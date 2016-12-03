@@ -55,7 +55,7 @@ ONBUILD ADD repeatmaskerlibraries.tar.gz /usr/local/RepeatMasker
 ONBUILD WORKDIR /usr/local/RepeatMasker
 ONBUILD RUN util/buildRMLibFromEMBL.pl Libraries/RepeatMaskerLib.embl > Libraries/RepeatMasker.lib && \
         makeblastdb -dbtype nucl -in Libraries/RepeatMasker.lib > /dev/null 2>&1 && \
-        makeblastdb -dbtype nucl -in Libraries/RepeatPeps.lib > /dev/null 2>&1
+        makeblastdb -dbtype prot -in Libraries/RepeatPeps.lib > /dev/null 2>&1
 ONBUILD RUN perl -i -0pe 's/^#\!.*perl.*/#\!\/usr\/bin\/perl/g' \
         RepeatMasker \
         DateRepeats \
