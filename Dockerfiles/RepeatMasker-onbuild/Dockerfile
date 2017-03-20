@@ -38,13 +38,13 @@ RUN wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/rmblast/2.2.28/ncbi-rmblas
     rm -rf ncbi-rmblastn    
 
 # Install Blast+
-RUN wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-x64-linux.tar.gz && \
+RUN wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.6.0/ncbi-blast-2.6.0+-x64-linux.tar.gz && \
     tar -xzvf ncbi-blast* && \
     find ncbi-blast* -type f -executable -exec mv {} bin \; && \  
     rm -rf ncbi-blast*
     
 # Install RepeatMasker
-RUN wget http://www.repeatmasker.org/RepeatMasker-open-4-0-6.tar.gz && \
+RUN wget http://www.repeatmasker.org/RepeatMasker-open-4-0-7.tar.gz && \
     tar -xzvf RepeatMasker-open*.tar.gz && \
     rm -f RepeatMasker-open*.tar.gz
 
@@ -53,7 +53,7 @@ RUN wget http://www.repeatmasker.org/RepeatMasker-open-4-0-6.tar.gz && \
 # http://www.girinst.org/server/RepBase/protected/repeatmaskerlibraries/repeatmaskerlibraries-20140131.tar.gz
 ONBUILD ADD repeatmaskerlibraries.tar.gz /usr/local/RepeatMasker
 ONBUILD WORKDIR /usr/local/RepeatMasker
-ONBUILD RUN util/buildRMLibFromEMBL.pl Libraries/RepeatMaskerLib.embl > Libraries/RepeatMasker.lib && \
+ONBUILD RUN util/buildRMLibFromEMBL.pl Libraries/RMRBSeqs.embl > Libraries/RepeatMasker.lib && \
         makeblastdb -dbtype nucl -in Libraries/RepeatMasker.lib > /dev/null 2>&1 && \
         makeblastdb -dbtype prot -in Libraries/RepeatPeps.lib > /dev/null 2>&1
 ONBUILD RUN perl -i -0pe 's/^#\!.*perl.*/#\!\/usr\/bin\/perl/g' \
