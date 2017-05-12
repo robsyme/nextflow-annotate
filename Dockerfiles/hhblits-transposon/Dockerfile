@@ -11,3 +11,4 @@ WORKDIR /databases
 ADD http://downloads.sourceforge.net/project/jamg/databases/transposons.hhblits.tar.bz2 .
 # ... or download it yourself next to this Dockerfile and then docker build.
 #ADD transposons.hhblits.tar.bz2 .
+RUN tar -xvf transposons.hhblits.tar.bz2
