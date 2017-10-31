@@ -111,11 +111,11 @@ RUN wget http://www.repeatmasker.org/RepeatModeler/RepeatModeler-open-1.0.10.tar
 
 # I can't bundle the girinst RepBase libraries with the docker image,
 # so you'll need to get them yourself. Download them from
-# http://www.girinst.org/server/RepBase/protected/repeatmaskerlibraries/repeatmaskerlibraries-20140131.tar.gz
+# http://www.girinst.org/server/RepBase/protected/repeatmaskerlibraries/RepBaseRepeatMaskerEdition-20170127.tar.gz
 
 ONBUILD WORKDIR /usr/local/RepeatMasker
 ONBUILD ADD repeatmaskerlibraries.tar.gz /usr/local/RepeatMasker
-ONBUILD RUN cd /usr/local/RepeatMasker && util/buildRMLibFromEMBL.pl Libraries/RepeatMaskerLib.embl > Libraries/RepeatMasker.lib \
+ONBUILD RUN cd /usr/local/RepeatMasker && util/buildRMLibFromEMBL.pl Libraries/RMRBSeqs.embl > Libraries/RepeatMasker.lib \
 		&& makeblastdb -dbtype nucl -in Libraries/RepeatMasker.lib > /dev/null 2>&1 \
         && makeblastdb -dbtype prot -in Libraries/RepeatPeps.lib > /dev/null 2>&1
 
