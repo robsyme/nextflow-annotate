@@ -39,7 +39,7 @@ Dockerfile and generate our new image
 wget --user your_username \
     --password 12345 \
     -O repeatmaskerlibraries.tar.gz \
-    http://www.girinst.org/server/RepBase/protected/repeatmaskerlibraries/repeatmaskerlibraries-20140131.tar.gz
+    http://www.girinst.org/server/RepBase/protected/repeatmaskerlibraries/RepBaseRepeatMaskerEdition-20170127.tar.gz
 echo "FROM robsyme/repeatmasker-onbuild" > Dockerfile
 docker build -t myrepeatmasker .
 ```
