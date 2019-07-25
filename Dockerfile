@@ -1,6 +1,6 @@
-FROM ubuntu:14.04
+FROM python:2.7.16-buster
 
-MAINTAINER Rob Syme <rob.syme@gmail.com>
+MAINTAINER Tom Harrop <twharrop@gmail.com>
 
 RUN apt-get update && apt-get install -qqy \
     wget \
