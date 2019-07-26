@@ -45,7 +45,7 @@ RUN wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.6.0/ncbi-blast-2.
     rm -rf ncbi-blast*
     
 # Install RepeatMasker
-RUN wget http://www.repeatmasker.org/RepeatMasker-open-4-0-7.tar.gz \
+RUN wget http://www.repeatmasker.org/RepeatMasker-open-4-0-9-p2.tar.gz \
     && tar -xzvf RepeatMasker-open*.tar.gz \
 	&& rm -f RepeatMasker-open*.tar.gz \
 	&& perl -0p -e 's/\/usr\/local\/hmmer/\/usr\/bin/g;' \
@@ -88,7 +88,7 @@ RUN wget http://www.repeatmasker.org/RepeatModeler/RECON-1.08.tar.gz \
 RUN apt-get install -qqy libjson-perl liburi-perl liblwp-useragent-determined-perl
 
 # Install RepeatModeler
-RUN wget http://www.repeatmasker.org/RepeatModeler/RepeatModeler-open-1.0.10.tar.gz \
+RUN wget http://www.repeatmasker.org/RepeatModeler/RepeatModeler-open-1.0.11.tar.gz \
 	&& tar -xvf RepeatModeler-*.tar.gz \
 	&& rm RepeatModeler-*.tar.gz \
 	&& mv RepeatModeler-*/ RepeatModeler \
