@@ -85,7 +85,7 @@ RUN wget http://www.repeatmasker.org/RepeatModeler/RECON-1.08.tar.gz \
 	&& perl -i -0pe 's/\$path = "";/\$path = "\/usr\/local\/RECON-1.08\/bin";/g' ../scripts/\recon.pl
 
 # Install RepeatModeler deps
-RUN apt-get install -qqy libjson-perl liburi-perl liblwp-useragent-determined-perl
+RUN apt-get install -qqy libjson-perl liburi-perl liblwp-useragent-determined-perl libtext-soundex-perl
 
 # Install RepeatModeler
 RUN wget http://www.repeatmasker.org/RepeatModeler/RepeatModeler-open-1.0.11.tar.gz \
