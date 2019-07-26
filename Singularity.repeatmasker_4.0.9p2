@@ -1,0 +1,5 @@
+Bootstrap: docker
+From: tomharrop/docker-repeatmasker:latest
+
+%runscript
+    exec /usr/local/RepeatMasker/RepeatMasker "$@"
