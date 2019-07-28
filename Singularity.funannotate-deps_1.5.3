@@ -1,0 +1,105 @@
+Bootstrap: shub
+From: TomHarrop/funannotate-singularity:funnannotate-base_1.5.3
+
+%post
+    # augustus config
+    export AUGUSTUS_CONFIG_PATH="/opt/augustus-3.3/config"
+    mkdir -p "${AUGUSTUS_CONFIG_PATH}"
+
+    # codingquarry
+    wget -O "codingquarry.tar.gz" \
+        https://sourceforge.net/projects/codingquarry/files/CodingQuarry_v2.0.tar.gz
+    mkdir codingquarry
+    tar -zxf codingquarry.tar.gz \
+        -C codingquarry \
+        --strip-components 1
+    cd codingquarry || exit 1
+    make
+    mv CodingQuarry /usr/local/bin/
+    cd .. || exit 1
+    rm -rf codingquarry codingquarry.tar.gz
+
+    # blat & pslCDnaFilter
+    wget -O /usr/local/bin/blat \
+        http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/blat/blat
+    wget -O /usr/local/bin/pslCDnaFilter \
+        http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/pslCDnaFilter
+
+    chmod 755 /usr/local/bin/blat
+    chmod 755 /usr/local/bin/pslCDnaFilter
+
+    # pasa
+    wget -O "fasta.tar.gz" \
+        http://faculty.virginia.edu/wrpearson/fasta/fasta36/fasta-36.3.8g.tar.gz
+    mkdir fasta
+    tar -zxf fasta.tar.gz \
+        -C fasta \
+        --strip-components 2
+    rm -f fasta.tar.gz
+    cd fasta/src || exit 1
+    make -f ../make/Makefile.linux_sse2 all
+    cd ../..
+    cp fasta/bin/fasta36 /usr/local/bin/fasta
+
+    wget -O "pasa.tar.gz" \
+        https://github.com/PASApipeline/PASApipeline/releases/download/pasa-v2.3.3/PASApipeline-v2.3.3.tar.gz
+    mkdir pasa
+    tar -zxf pasa.tar.gz \
+        -C pasa \
+        --strip-components 1
+    rm -f pasa.tar.gz
+    cd pasa || exit 1
+    make
+    cd .. || exit 1
+
+    # genemark
+    wget -O genemark_download.sh \
+        --no-check-certificate \
+        https://raw.githubusercontent.com/TomHarrop/funannotate-singularity/master/src/genemark_download.sh
+    bash genemark_download.sh
+    rm genemark_download.sh
+
+    # kallisto
+    wget -O "kallisto.tar.gz" \
+        https://github.com/pachterlab/kallisto/releases/download/v0.46.0/kallisto_linux-v0.46.0.tar.gz
+    mkdir kallisto
+    tar -zxf kallisto.tar.gz \
+        -C kallisto \
+        --strip-components 1
+    mv kallisto/kallisto /usr/local/bin/
+    rm -rf kallisto kallisto.tar.gz
+ 
+    # stringtie
+    wget -O stringtie.tar.gz \
+        --no-check-certificate \
+        http://ccb.jhu.edu/software/stringtie/dl/stringtie-1.3.6.Linux_x86_64.tar.gz
+    mkdir stringtie
+    tar -zxf stringtie.tar.gz \
+        -C stringtie \
+        --strip-components 1
+    mv stringtie/stringtie /usr/local/bin/
+    rm -rf stringtie stringtie.tar.gz
+
+    # trimal
+    wget -O trimal.tar.gz \
+        --no-check-certificate \
+        https://github.com/scapella/trimal/archive/v1.4.1.tar.gz
+    mkdir trimal
+    tar -zxf trimal.tar.gz \
+        -C trimal \
+        --strip-components 1
+    cd trimal/source || exit 1
+    make
+    mv readal statal trimal /usr/local/bin/
+    cd ../../ || exit 1
+    rm -rf trimal trimal.tar.gz
+
+    # evidence modeller
+    wget -O evm.tar.gz \
+        --no-check-certificate \
+    https://github.com/EVidenceModeler/EVidenceModeler/archive/v1.1.1.tar.gz
+    mkdir evm
+    tar -zxf evm.tar.gz \
+        -C evm \
+        --strip-components 1
+    rm -f evm.tar.gz
