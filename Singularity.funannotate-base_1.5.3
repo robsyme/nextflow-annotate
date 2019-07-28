@@ -1,0 +1,65 @@
+Bootstrap: shub
+From: TomHarrop/funannotate-singularity:repeatmasker_4.0.9p2
+
+%post
+    export DEBIAN_FRONTEND=noninteractive
+
+    apt-get update
+    apt-get install -y \
+        software-properties-common
+    apt-add-repository non-free
+    apt-get update
+
+    apt-get install -y \
+        augustus \
+        autoconf \
+        autogen \
+        bamtools \
+        build-essential \
+        cmake \
+        cpanminus \
+        default-jre \
+        diamond-aligner \
+        gmap \
+        hisat2 \
+        libbio-perl-perl \
+        libboost-all-dev \
+        libfile-which-perl \
+        libhash-merge-perl \
+        libparallel-forkmanager-perl \
+        libscalar-util-numeric-perl \
+        minimap2 \
+        pigz \
+        python3-pip \
+        trinityrnaseq \
+        trnascan-se \
+        wget \
+        xvfb \
+        zlib1g-dev
+
+    # Perl Logger::Simple isn't on apt
+    cpanm Logger::Simple
+
+    # python2 packages
+    /usr/local/bin/pip2 install \
+        biopython \
+        git+https://github.com/jhcepas/eggnog-mapper.git \
+        goatools \
+        matplotlib \
+        natsort \
+        numpy \
+        pandas \
+        psutil \
+        requests \
+        scikit-learn \
+        scipy \
+        seaborn
+
+    # ete3 can be installed from pip3
+    /usr/bin/pip3 install \
+        ete3 \
+        lxml \
+        numpy \
+        PyQt5 \
+        QtPy \
+        six
