@@ -1,5 +1,7 @@
 ## funannotate-singularity
 
+[![https://www.singularity-hub.org/static/img/hosted-singularity--hub-%23e32929.svg](https://www.singularity-hub.org/static/img/hosted-singularity--hub-%23e32929.svg)](https://singularity-hub.org/collections/3314)
+
 Containers for running funannotate with singularity
 
 ### Dockerfile
