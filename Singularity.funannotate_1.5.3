@@ -1,0 +1,42 @@
+Bootstrap: shub
+From: TomHarrop/funannotate-singularity:funannotate-deps_1.5.3
+
+%help
+    Funannotate
+    https://funannotate.readthedocs.io
+
+    Funnanotate uses environment variables to define the path to the funannotate database. Override with `-d`, or bind the FUNANNOTATE_DB directory into the container as follows:
+
+    singularity exec \
+        -B output/funannotate_db:/funannotate_db \
+        minknow_19.05.0.sif \
+        minknow
+
+    The RepeatMasker installation does not include Repbase libraries.
+
+%labels
+    MAINTAINER "Tom Harrop (twharrop@gmail.com)"
+    VERSION "funannotate 1.5.3"
+
+%post
+    # funannotate
+    wget -O funannotate.tar.gz \
+        --no-check-certificate \
+        https://github.com/nextgenusfs/funannotate/archive/1.5.3.tar.gz    
+    mkdir funannotate
+    tar -zxf funannotate.tar.gz \
+        -C funannotate \
+        --strip-components 1
+
+%environment
+    export PATH="${PATH}:/usr/lib/debian-med/bin:/fasta/bin:/pasa/bin:/genemark:/funannotate:/evm"
+    export FUNANNOTATE_DB=/funannotate_db
+    export PASAHOME=/pasa
+    export TRINITYHOME=/usr/bin
+    export EVM_HOME=/evm
+    export AUGUSTUS_CONFIG_PATH="/opt/augustus-3.3/config"
+    export GENEMARK_PATH=/genemark
+    export BAMTOOLS_PATH=/usr/bin
+
+%runscript
+    exec /funannotate/funannotate "$@"

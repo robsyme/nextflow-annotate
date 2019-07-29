@@ -8,9 +8,11 @@ Containers for running `funannotate` with singularity. The version tags on `Sing
 
 Fork of Rob Syme's [RepeatMasker Dockerfile](https://github.com/robsyme/nextflow-annotate/tree/master/Dockerfiles/RepeatMasker-onbuild), just using a different base image.
 
+Note to self: push a new tag to get Docker Hub to build a new container from the Dockerfile.
+
 ### Singularity.repeatmasker
 
-Builds the image from Docker Hub into a `.sif`
+Builds [the image from Docker Hub](https://cloud.docker.com/repository/docker/tomharrop/funannotate-singularity) into a `.sif`
 
 ### Singularity.funannotate-base
 
