@@ -18,7 +18,7 @@ Adds the funnanotate dependencies that can be installed from `apt`, `pip` and `c
 
 ### Singularity.funannotate-deps
 
-Manually installs the remaining dependencies into Singularity.funannotate-deps
+Manually installs the remaining dependencies into Singularity.funannotate-base
 
 ### Singularity.funannotate
 

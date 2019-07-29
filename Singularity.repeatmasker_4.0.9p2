@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: tomharrop/funannotate-singularity
+From: tomharrop/funannotate-singularity:repeatmasker-4.0.9p2
 
 %runscript
     exec /usr/local/RepeatMasker/RepeatMasker "$@"
