@@ -12,7 +12,7 @@ Note to self: push a new tag to get Docker Hub to build a new container from the
 
 ### Singularity.repeatmasker
 
-Builds [the image from Docker Hub](https://cloud.docker.com/repository/docker/tomharrop/funannotate-singularity) into a `.sif`
+Builds [the image from Docker Hub](https://hub.docker.com/r/tomharrop/funannotate-singularity) into a `.sif`
 
 ### Singularity.funannotate-base
 
