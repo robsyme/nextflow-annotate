@@ -40,10 +40,10 @@ RUN wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/rmblast/2.2.28/ncbi-rmblas
     rm -rf ncbi-rmblastn    
 
 # Install Blast+
-# RUN wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.6.0/ncbi-blast-2.6.0+-x64-linux.tar.gz && \
-#     tar -xzvf ncbi-blast* && \
-#     find ncbi-blast* -type f -executable -exec mv {} bin \; && \  
-#     rm -rf ncbi-blast*
+RUN wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.6.0/ncbi-blast-2.6.0+-x64-linux.tar.gz && \
+    tar -xzvf ncbi-blast* && \
+    find ncbi-blast* -type f -executable -exec mv {} bin \; && \  
+    rm -rf ncbi-blast*
     
 # Install RepeatMasker
 RUN wget http://www.repeatmasker.org/RepeatMasker-open-4-0-9-p2.tar.gz \
