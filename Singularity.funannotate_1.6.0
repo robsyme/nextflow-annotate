@@ -21,7 +21,7 @@ From: TomHarrop/funannotate-singularity:funannotate-deps_1.5.3
     VERSION "funannotate 16500bc (20190730)"
 
 %post
-    # funannotate
+    # funannotate 
     wget -O funannotate.tar.gz \
         --no-check-certificate \
         https://github.com/nextgenusfs/funannotate/archive/1.6.0.tar.gz
