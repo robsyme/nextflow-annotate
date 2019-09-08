@@ -22,17 +22,17 @@ From: TomHarrop/funannotate-singularity:funannotate-deps_1.5.3
 
 %post
     # funannotate
-    # wget -O funannotate.tar.gz \
-    #     --no-check-certificate \
-    #     https://github.com/nextgenusfs/funannotate/archive/1.5.3.tar.gz    
-    # mkdir funannotate
-    # tar -zxf funannotate.tar.gz \
-    #     -C funannotate \
-    #     --strip-components 1
-    git clone https://github.com/nextgenusfs/funannotate.git
-    cd funannotate || exit 1
-    git checkout 16500bc
-    cd .. || exit 1
+    wget -O funannotate.tar.gz \
+        --no-check-certificate \
+        https://github.com/nextgenusfs/funannotate/archive/1.6.0.tar.gz
+    mkdir funannotate
+    tar -zxf funannotate.tar.gz \
+        -C funannotate \
+        --strip-components 1
+    # git clone https://github.com/nextgenusfs/funannotate.git
+    # cd funannotate || exit 1
+    # git checkout 16500bc
+    # cd .. || exit 1
 
 %environment
     export PATH="${PATH}:/usr/lib/debian-med/bin:/fasta/bin:/pasa/bin:/genemark:/funannotate:/evm"
