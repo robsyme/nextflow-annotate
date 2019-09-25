@@ -3,3 +3,18 @@ From: tomharrop/funannotate-singularity:repeatmasker-4.0.9p2
 
 %runscript
     exec /usr/local/RepeatMasker/RepeatMasker "$@"
+
+%post
+    # configure repeatmasker
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get install -y expect
+    (
+        cd /usr/local/RepeatMasker || exit 1
+        expect -c "
+        spawn perl configure
+        expect \"Enter path *\"
+        send \"\n\"
+        expect \"Enter Selection*\"
+        send \"5\n\"
+        interact"
+    )
