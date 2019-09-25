@@ -4,12 +4,11 @@ From: TomHarrop/funannotate-singularity:repeatmasker_4.0.9p2
 %post
     export DEBIAN_FRONTEND=noninteractive
 
-    apt-get update
+    apt-get -o Acquire::Check-Valid-Until=false update
     apt-get install -y \
         software-properties-common
     apt-add-repository non-free
-    apt-get update
-
+    apt-get -o Acquire::Check-Valid-Until=false update
 
     apt-get install -y \
         augustus \
