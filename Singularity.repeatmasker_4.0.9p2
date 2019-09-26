@@ -5,8 +5,9 @@ From: tomharrop/funannotate-singularity:repeatmasker-4.0.9p2
     exec /usr/local/RepeatMasker/RepeatMasker "$@"
 
 %post
-    # configure repeatmasker
     export DEBIAN_FRONTEND=noninteractive
+
+    # configure repeatmasker
     apt-get install -y expect
     (
         cd /usr/local/RepeatMasker || exit 1
