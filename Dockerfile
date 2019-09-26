@@ -2,7 +2,8 @@ FROM python:2.7.16-buster
 
 MAINTAINER Tom Harrop <twharrop@gmail.com>
 
-RUN apt-get update && apt-get install -qqy \
+RUN apt-get -o Acquire::Check-Valid-Until=false update \
+    && apt-get install -qqy \
     wget \
     hmmer \
     unzip \
