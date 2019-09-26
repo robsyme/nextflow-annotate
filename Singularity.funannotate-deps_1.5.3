@@ -38,7 +38,7 @@ From: TomHarrop/funannotate-singularity:funannotate-base_1.5.3
     rm -f fasta.tar.gz
     cd fasta/src || exit 1
     make -f ../make/Makefile.linux_sse2 all
-    cd ../..
+    cd ../.. || exit 1
     cp fasta/bin/fasta36 /usr/local/bin/fasta
 
     wget -O "pasa.tar.gz" \
