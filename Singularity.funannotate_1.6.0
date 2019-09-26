@@ -18,9 +18,11 @@ From: TomHarrop/funannotate-singularity:funannotate-deps_1.5.3
 
 %labels
     MAINTAINER "Tom Harrop (twharrop@gmail.com)"
-    VERSION "funannotate 16500bc (20190730)"
+    VERSION "funannotate 1.6.0"
 
 %post
+    export DEBIAN_FRONTEND=noninteractive
+
     # funannotate 
     wget -O funannotate.tar.gz \
         --no-check-certificate \
