@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -qqy \
 
 # Install TRF (for RepeatScout)
 WORKDIR /usr/local/bin
-RUN wget http://tandem.bu.edu/trf/downloads/trf407b.linux64 && mv trf*.linux64 trf && chmod +x trf
+RUN wget http://tandem.bu.edu/trf/downloads/trf409.linux64 && mv trf*.linux64 trf && chmod +x trf
 
 # Basic workdir
 WORKDIR /usr/local
