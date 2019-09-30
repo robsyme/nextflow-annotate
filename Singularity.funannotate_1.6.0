@@ -21,7 +21,6 @@ From: TomHarrop/funannotate-singularity:funannotate-deps_1.6.0
     VERSION "funannotate 1.6.0"
 
 %post
-
     export DEBIAN_FRONTEND=noninteractive
 
     # Genemark license? cp to ${HOME}/.gm_key at runtime
