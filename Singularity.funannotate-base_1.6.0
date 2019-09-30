@@ -35,6 +35,7 @@ From: TomHarrop/funannotate-singularity:repeatmasker_4.0.9p2
         ncbi-tools-bin \
         pigz \
         python3-pip \
+        snap \
         trinityrnaseq \
         trnascan-se \
         wget \
