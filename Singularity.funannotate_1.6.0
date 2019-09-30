@@ -1,5 +1,5 @@
 Bootstrap: shub
-From: TomHarrop/funannotate-singularity:funannotate-deps_1.5.3
+From: TomHarrop/funannotate-singularity:funannotate-deps_1.6.0
 
 %help
     Funannotate
