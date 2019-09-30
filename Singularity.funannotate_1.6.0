@@ -23,6 +23,8 @@ From: TomHarrop/funannotate-singularity:funannotate-deps_1.5.3
 %post
     export DEBIAN_FRONTEND=noninteractive
 
+    # Genemark license? cp to ${HOME}/.gm_key at runtime
+
     # funannotate 
     wget -O funannotate.tar.gz \
         --no-check-certificate \
@@ -37,12 +39,12 @@ From: TomHarrop/funannotate-singularity:funannotate-deps_1.5.3
     # cd .. || exit 1
 
 %environment
-    export PATH="${PATH}:/usr/lib/debian-med/bin:/fasta/bin:/pasa/bin:/genemark:/funannotate:/evm"
+    export PATH="/blast/bin:${PATH}:/usr/lib/debian-med/bin:/fasta/bin:/pasa/bin:/genemark:/funannotate:/evm:/snap"
     export FUNANNOTATE_DB=/funannotate_db
     export PASAHOME=/pasa
     export TRINITYHOME=/usr/bin
     export EVM_HOME=/evm
-    export AUGUSTUS_CONFIG_PATH="/opt/augustus-3.3/config"
+    export AUGUSTUS_CONFIG_PATH="/usr/share/augustus/config"
     export GENEMARK_PATH=/genemark
     export BAMTOOLS_PATH=/usr/bin
 
