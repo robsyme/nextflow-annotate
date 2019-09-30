@@ -1,5 +1,5 @@
 Bootstrap: shub
-From: TomHarrop/funannotate-singularity:funannotate-base_1.5.3
+From: TomHarrop/funannotate-singularity:funannotate-base_1.6.0
 
 %post
     # augustus config
@@ -127,9 +127,3 @@ From: TomHarrop/funannotate-singularity:funannotate-base_1.5.3
     mv glimmerhmm /usr/local/bin
     cd ../../ || exit 1
     rm -r glimmerhmm.tar.gz glimmerhmm
-
-    # snap
-    git clone https://github.com/amplab/snap
-    cd snap
-    git checkout c7f89b5
-    make
