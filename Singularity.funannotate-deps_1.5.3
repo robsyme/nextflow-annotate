@@ -3,8 +3,18 @@ From: TomHarrop/funannotate-singularity:funannotate-base_1.5.3
 
 %post
     # augustus config
-    export AUGUSTUS_CONFIG_PATH="/opt/augustus-3.3/config"
-    mkdir -p "${AUGUSTUS_CONFIG_PATH}"
+    export AUGUSTUS_CONFIG_PATH="/usr/share/augustus/config"
+    # allow BUSCO to *write* to the augustus config dir. Yuck.
+    chmod -R 777 "${AUGUSTUS_CONFIG_PATH}"
+
+    # install blast 2.2.31 for BUSCO
+    wget -O "blast.tar.gz" \
+        ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-x64-linux.tar.gz
+    mkdir /blast
+    tar -zxf blast.tar.gz \
+        -C /blast \
+        --strip-components 1
+    rm -f blast.tar.gz
 
     # codingquarry
     wget -O "codingquarry.tar.gz" \
@@ -103,3 +113,23 @@ From: TomHarrop/funannotate-singularity:funannotate-base_1.5.3
         -C evm \
         --strip-components 1
     rm -f evm.tar.gz
+
+    # glimmerhmm
+    wget -O glimmerhmm.tar.gz \
+        --no-check-certificate \
+    https://ccb.jhu.edu/software/glimmerhmm/dl/GlimmerHMM-3.0.4.tar.gz
+    mkdir glimmerhmm
+    tar -zxf glimmerhmm.tar.gz \
+        -C glimmerhmm \
+        --strip-components 1
+    cd glimmerhmm/sources || exit 1
+    make
+    mv glimmerhmm /usr/local/bin
+    cd ../../ || exit 1
+    rm -r glimmerhmm.tar.gz glimmerhmm
+
+    # snap
+    git clone https://github.com/amplab/snap
+    cd snap
+    git checkout c7f89b5
+    make
