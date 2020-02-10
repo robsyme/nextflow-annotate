@@ -1,9 +1,55 @@
 Bootstrap: shub
 From: TomHarrop/funannotate-singularity:funannotate-base_1.6.0
 
+# Bootstrap: localimage
+# From: funannotate-base_1.6.0-local.sif
+
 %post
+    # install augustus
+    # need from apt
+    # libbamtools-dev libhts-dev libbam-dev libgsl-dev liblpsolve55-dev
+    (
+    wget -O "augustus.tar.gz" \
+        --no-check-certificate \
+        https://github.com/Gaius-Augustus/Augustus/releases/download/v3.3.3/augustus-3.3.3.tar.gz
+    mkdir augustus
+    tar -zxf augustus.tar.gz \
+        -C /augustus \
+        --strip-components 1
+    rm -f augustus.tar.gz
+    cd augustus || exit 1
+
+    export CC="$(which gcc)"
+    export CXX="$(which g++)"
+    export PREFIX="/usr/local"
+    export BUILD_PREFIX="/usr"
+    export TOOLDIR="/usr/include"
+
+    # follow the conda install recipe
+    export INCLUDE_PATH="${PREFIX}/include"
+    export LIBRARY_PATH="${PREFIX}/lib"
+    export LD_LIBRARY_PATH="${PREFIX}/lib"
+    export BOOST_INCLUDE_DIR="${PREFIX}/include"
+    export BOOST_LIBRARY_DIR="${PREFIX}/lib"
+
+    export CXXFLAGS=" -std=c++11  -DUSE_BOOST -I${BOOST_INCLUDE_DIR} -L${BOOST_LIBRARY_DIR} -I${BUILD_PREFIX}/include/bamtools"
+    export LDFLAGS="-L${BOOST_LIBRARY_DIR}"
+    export BAMTOOLS="${BUILD_PREFIX}"
+
+    # compile
+    ln -s /usr/lib/libbam.a "${TOOLDIR}/samtools/"
+    ln -s /usr/lib/x86_64-linux-gnu/libhts.a "${TOOLDIR}/htslib/"
+    make  \
+        COMPGENPRED=true \
+        SQLITE=true \
+        BAMTOOLS="${BUILD_PREFIX}" \
+        BAMTOOLS_CC="${CC}" \
+        BAMTOOLS_CXX="${CXX}"
+    make install
+    )
+
     # augustus config
-    export AUGUSTUS_CONFIG_PATH="/usr/share/augustus/config"
+    export AUGUSTUS_CONFIG_PATH="/opt/augustus-3.3.3/config"
     # allow BUSCO to *write* to the augustus config dir. Yuck.
     chmod -R 777 "${AUGUSTUS_CONFIG_PATH}"
 
@@ -147,6 +193,9 @@ From: TomHarrop/funannotate-singularity:funannotate-base_1.6.0
     # make
     make -C sources
     make -C train clean && make -C train all
+
+    # make executable
+    chmod -R 755 .
 
     # copy the executables  
     cp bin/glimmhmm.pl $PREFIX/bin/
