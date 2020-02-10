@@ -14,7 +14,6 @@ From: TomHarrop/funannotate-singularity:repeatmasker_4.0.9p2
         update
 
     apt-get install -y \
-        augustus \
         autoconf \
         autogen \
         bamtools \
@@ -25,10 +24,15 @@ From: TomHarrop/funannotate-singularity:repeatmasker_4.0.9p2
         diamond-aligner \
         gmap \
         hisat2 \
+        libbam-dev \
+        libbamtools-dev \
         libbio-perl-perl \
         libboost-all-dev \
         libfile-which-perl \
+        libgsl-dev \
         libhash-merge-perl \
+        libhts-dev \
+        liblpsolve55-dev \
         libparallel-forkmanager-perl \
         libscalar-util-numeric-perl \
         minimap2 \
