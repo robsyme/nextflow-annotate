@@ -1,6 +1,9 @@
 Bootstrap: shub
 From: TomHarrop/funannotate-singularity:funannotate-deps_1.6.0
 
+# Bootstrap: localimage
+# From: funannotate-deps_1.6.0-local.sif
+
 %help
     Funannotate
     https://funannotate.readthedocs.io
@@ -38,13 +41,16 @@ From: TomHarrop/funannotate-singularity:funannotate-deps_1.6.0
     # git checkout 16500bc
     # cd .. || exit 1
 
+    # make the repeatmasker dir writable?
+    chmod -R 777 /usr/local/RepeatMasker/Libraries
+
 %environment
     export PATH="/blast/bin:${PATH}:/usr/lib/debian-med/bin:/fasta/bin:/pasa/bin:/genemark:/funannotate:/evm:/snap"
     export FUNANNOTATE_DB=/funannotate_db
     export PASAHOME=/pasa
     export TRINITYHOME=/usr/bin
     export EVM_HOME=/evm
-    export AUGUSTUS_CONFIG_PATH="/usr/share/augustus/config"
+    export AUGUSTUS_CONFIG_PATH="/opt/augustus-3.3.3/config"
     export GENEMARK_PATH=/genemark
     export BAMTOOLS_PATH=/usr/bin
 
