@@ -7,7 +7,6 @@ From: TomHarrop/funannotate-singularity:funannotate-base_1.6.0
 %post
     # install augustus
     # need from apt
-    # libbamtools-dev libhts-dev libbam-dev libgsl-dev liblpsolve55-dev
     (
     wget -O "augustus.tar.gz" \
         --no-check-certificate \
@@ -160,6 +159,9 @@ From: TomHarrop/funannotate-singularity:funannotate-base_1.6.0
         --strip-components 1
     rm -f evm.tar.gz
 
+    # trnascan-se \ move to deps?
+    # http://trna.ucsc.edu/software/trnascan-se-2.0.5.tar.gz
+
     # glimmerhmm
     (
     wget -O glimmerhmm.tar.gz \
@@ -170,6 +172,7 @@ From: TomHarrop/funannotate-singularity:funannotate-base_1.6.0
         -C glimmerhmm \
         --strip-components 1
     cd glimmerhmm || exit 1
+
 
     # from here, follow the conda recipe from https://raw.githubusercontent.com/bioconda/bioconda-recipes/master/recipes/glimmerhmm/build.sh
     export PREFIX=/usr/local

@@ -1,17 +1,20 @@
-Bootstrap: shub
-From: TomHarrop/funannotate-singularity:repeatmasker_4.0.9p2
+Bootstrap: localimage
+From: tetools_1.1.sif
 
 %post
-
     export DEBIAN_FRONTEND=noninteractive
+    export LC_ALL=C
 
-    apt-get -o Acquire::Check-Valid-Until=false \
-        update
+    # fix expired apt warnings
+    apt-get update
     apt-get install -y \
         software-properties-common
     apt-add-repository non-free
-    apt-get -o Acquire::Check-Valid-Until=false \
-        update
+
+    # add stretch-backports
+    echo "deb http://deb.debian.org/debian stretch-backports main" \
+        >> /etc/apt/sources.list
+    apt-get update
 
     apt-get install -y \
         autoconf \
@@ -22,6 +25,7 @@ From: TomHarrop/funannotate-singularity:repeatmasker_4.0.9p2
         cpanminus \
         default-jre \
         diamond-aligner \
+        git \
         gmap \
         hisat2 \
         libbam-dev \
@@ -41,34 +45,62 @@ From: TomHarrop/funannotate-singularity:repeatmasker_4.0.9p2
         python3-pip \
         snap \
         trinityrnaseq \
-        trnascan-se \
         wget \
         xvfb \
         zlib1g-dev
 
+    # trnascan-se \ move to deps?
+
     # Perl Logger::Simple isn't on apt
     cpanm Logger::Simple
 
-    # python2 packages
-    /usr/local/bin/pip2 install \
+    # python2 packages... this is pretty much broken
+    # /usr/bin/pip2 install \
+    #     biopython \
+    #     git+https://github.com/jhcepas/eggnog-mapper.git \
+    #     goatools \
+    #     matplotlib \
+    #     natsort \
+    #     numpy \
+    #     pandas \
+    #     psutil \
+    #     requests \
+    #     scikit-learn \
+    #     scipy \
+    #     seaborn
+
+    # ete3 can be installed from pip3
+    # this is broken b/c of PyQt5
+    # /usr/bin/pip3 install \
+    #     ete3 \
+    #     lxml \
+    #     numpy \
+    #     PyQt5 \
+    #     QtPy \
+    #     six \
+
+    # install EVERYTHING from pip3?
+    pip3 install --upgrade pip
+    /usr/local/bin/pip3 install \
         biopython \
+        ete3 \
         git+https://github.com/jhcepas/eggnog-mapper.git \
         goatools \
+        lxml \
         matplotlib \
         natsort \
         numpy \
+        numpy \
         pandas \
         psutil \
+        PyQt5 \
+        QtPy \
         requests \
         scikit-learn \
         scipy \
-        seaborn
-
-    # ete3 can be installed from pip3
-    /usr/bin/pip3 install \
-        ete3 \
-        lxml \
-        numpy \
-        PyQt5 \
-        QtPy \
+        seaborn \
         six
+
+    # how is funannotate looking?
+    # /usr/local/bin/pip3 install git+git://github.com/nextgenusfs/funannotate.git@8e2e0a1
+    # funannotate check --show-versions
