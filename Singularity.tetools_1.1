@@ -1,0 +1,25 @@
+Bootstrap: docker
+From: dfam/tetools:1.1
+
+%environment
+    export LC_ALL=C
+    export PATH="${PATH}:/opt"
+
+%post
+    export DEBIAN_FRONTEND=noninteractive
+    export LC_ALL=C
+    export PATH="${PATH}:/opt"
+
+    # RM is configured for trf to be in /opt/trf
+    wget \
+        -O /opt/trf \
+        http://tandem.bu.edu/trf/downloads/trf409.linux64
+    chmod +x /opt/trf
+
+    # allow writing to RM Library dir
+    chmod -R 777 /opt/RepeatMasker/Libraries
+
+%runscript
+
+    exec /opt/RepeatMasker/RepeatMasker "$@"
+    

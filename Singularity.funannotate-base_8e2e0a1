@@ -1,5 +1,8 @@
-Bootstrap: localimage
-From: tetools_1.1.sif
+Bootstrap: shub
+From: TomHarrop/funannotate-singularity:tetools_1.1
+
+# Bootstrap: localimage
+# From: tetools_1.1.sif
 
 %post
     export DEBIAN_FRONTEND=noninteractive

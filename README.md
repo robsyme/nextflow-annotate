@@ -14,9 +14,14 @@ Note to self: push a new tag to get Docker Hub to build a new container from the
 
 Builds [the image from Docker Hub](https://hub.docker.com/r/tomharrop/funannotate-singularity) into a `.sif`
 
+### Singularity.tetools
+
+New base for funannotate using [Dfam's TE Tools container](https://github.com/Dfam-consortium/TETools).
+My singularity recipe pulls the docker image from `dfam/tetools`, adds `trf` and makes the RepeatMasker library directory writable.
+
 ### Singularity.funannotate-base
 
-Adds the funnanotate dependencies that can be installed from `apt`, `pip` and `cpan` to Singularity.repeatmasker
+Adds the funnanotate dependencies that can be installed from `apt`, `pip` and `cpan` to Singularity.tetools
 
 ### Singularity.funannotate-deps
 
