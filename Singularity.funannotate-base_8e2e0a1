@@ -8,17 +8,17 @@ From: TomHarrop/funannotate-singularity:tetools_1.1
     export DEBIAN_FRONTEND=noninteractive
     export LC_ALL=C
 
-    # fix expired apt warnings
+    # set up apt
     apt-get update
     apt-get install -y \
         software-properties-common
     apt-add-repository non-free
-
     # add stretch-backports
     echo "deb http://deb.debian.org/debian stretch-backports main" \
         >> /etc/apt/sources.list
     apt-get update
 
+    # deps
     apt-get install -y \
         autoconf \
         autogen \
