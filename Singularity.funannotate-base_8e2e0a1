@@ -35,6 +35,7 @@ From: TomHarrop/funannotate-singularity:tetools_1.1
         libbamtools-dev \
         libbio-perl-perl \
         libboost-all-dev \
+        libcurl3-dev \
         libfile-which-perl \
         libgsl-dev \
         libhash-merge-perl \
@@ -42,10 +43,15 @@ From: TomHarrop/funannotate-singularity:tetools_1.1
         liblpsolve55-dev \
         libparallel-forkmanager-perl \
         libscalar-util-numeric-perl \
+        libsqlite3-dev \
+        libssl-dev \
         minimap2 \
         ncbi-tools-bin \
         pigz \
+        python-pip \
         python3-pip \
+        salmon \
+        tantan \
         snap \
         trinityrnaseq \
         wget \
@@ -83,11 +89,10 @@ From: TomHarrop/funannotate-singularity:tetools_1.1
     #     six \
 
     # install EVERYTHING from pip3?
-    pip3 install --upgrade pip
+    /usr/bin/pip3 install --upgrade pip
     /usr/local/bin/pip3 install \
         biopython \
         ete3 \
-        git+https://github.com/jhcepas/eggnog-mapper.git \
         goatools \
         lxml \
         matplotlib \
@@ -103,6 +108,14 @@ From: TomHarrop/funannotate-singularity:tetools_1.1
         scipy \
         seaborn \
         six
+
+    # emapper is py2 only?
+    /usr/bin/pip2 install --upgrade pip
+    /usr/local/bin/pip2 install \
+        git+https://github.com/jhcepas/eggnog-mapper.git
+
+    
+
 
     # how is funannotate looking?
     # /usr/local/bin/pip3 install git+git://github.com/nextgenusfs/funannotate.git@8e2e0a1
