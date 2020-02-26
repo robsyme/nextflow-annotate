@@ -1,35 +1,39 @@
-# Bootstrap: shub
-# From: TomHarrop/funannotate-singularity:tetools_1.1
+Bootstrap: shub
+From: TomHarrop/funannotate-singularity:tetools_1.1
 
-Bootstrap: localimage
-From: tetools_1.1.sif
+# Bootstrap: localimage
+# From: tetools_1.1.sif
 
 %post
     export DEBIAN_FRONTEND=noninteractive
     export LC_ALL=C
 
     # set up apt
-    echo "Acquire::Check-Valid-Until \"false\";" \
-        > /etc/apt/apt.conf.d/100disablechecks
-    # sed -i 's/deb.debian.org/archive.debian.org/g' /etc/apt/sources.list
-    grep -v \
-    "deb http://deb.debian.org/debian stretch main" \
-        /etc/apt/sources.list \
-        > sources.list.new
-    echo "deb http://cdn-fastly.deb.debian.org/debian stretch main" >> sources.list.new
-    mv sources.list.new /etc/apt/sources.list
+    apt-get -o Acquire::Check-Valid-Until=false clean
+    rm -r /var/lib/apt/lists/*
+    apt-get -o Acquire::Check-Valid-Until=false update
+    apt-get upgrade -y --fix-missing -o Acquire::Check-Valid-Until=false
 
-    apt-get update
-    apt-get install -y \
-        software-properties-common
-    apt-add-repository non-free
-    # add stretch-backports
-    echo "deb http://deb.debian.org/debian stretch-backports main" \
-        >> /etc/apt/sources.list
-    apt-get update
+    # reset sources.list to something-like-default (with backports and
+    # non-free)
+cat << _EOF_ > /etc/apt/sources.list
+deb http://deb.debian.org/debian/ stretch main contrib non-free
+deb-src http://deb.debian.org/debian/ stretch main contrib non-free
+
+deb http://deb.debian.org/debian/ stretch-updates main contrib non-free
+deb-src http://deb.debian.org/debian/ stretch-updates main contrib non-free
+
+deb http://deb.debian.org/debian-security stretch/updates main
+deb-src http://deb.debian.org/debian-security stretch/updates main
+
+deb http://deb.debian.org/debian stretch-backports main contrib non-free
+deb-src http://deb.debian.org/debian stretch-backports main contrib non-free
+_EOF_
+
+    apt-get -o Acquire::Check-Valid-Until=false update
 
     # deps
-    apt-get install -y \
+    apt-get install -o Acquire::Check-Valid-Until=false -y \
         autoconf \
         autogen \
         bamtools \
@@ -69,6 +73,8 @@ From: tetools_1.1.sif
         zlib1g-dev
 
     # trnascan-se \ move to deps?
+    #         gmap \ (it's in non-free)
+
 
     # Perl Logger::Simple isn't on apt
     cpanm Logger::Simple
