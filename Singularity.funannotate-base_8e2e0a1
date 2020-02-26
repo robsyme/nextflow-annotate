@@ -72,10 +72,6 @@ _EOF_
         xvfb \
         zlib1g-dev
 
-    # trnascan-se \ move to deps?
-    #         gmap \ (it's in non-free)
-
-
     # Perl Logger::Simple isn't on apt
     cpanm Logger::Simple
 
