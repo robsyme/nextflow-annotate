@@ -1,10 +1,11 @@
 Bootstrap: shub
-From: TomHarrop/funannotate-singularity:funannotate-deps_1.6.0
+From: TomHarrop/funannotate-singularity:funannotate-deps_8e2e0a1
 
 # Bootstrap: localimage
-# From: funannotate-deps_1.6.0-local.sif
+# From: funannotate-deps_8e2e0a1.sif
 
 %help
+    '
     Funannotate
     https://funannotate.readthedocs.io
 
@@ -19,9 +20,20 @@ From: TomHarrop/funannotate-singularity:funannotate-deps_1.6.0
 
     The RepeatMasker installation does not include Repbase libraries.
 
+    cp the Genemake license to ${HOME}/.gm_key at runtime
+
+    The following dependencies have issues in 8e2e0a1
+    - augustus (installed, not sure what the error is)
+    - proteinortho not installed, dont know what it is
+    - salmon (installed at /usr/bin/salmon)
+    - signalp (not installed, license)
+    - trimmomatic (installed, java -jar /usr/share/java/trimmomatic.jar,
+                   /usr/bin/TrimmomaticPE, /usr/bin/TrimmomaticSE)
+    '
+
 %labels
     MAINTAINER "Tom Harrop (twharrop@gmail.com)"
-    VERSION "funannotate 1.6.0"
+    VERSION "funannotate 8e2e0a1 for python3"
 
 %post
     export DEBIAN_FRONTEND=noninteractive
@@ -29,23 +41,22 @@ From: TomHarrop/funannotate-singularity:funannotate-deps_1.6.0
     # Genemark license? cp to ${HOME}/.gm_key at runtime
 
     # funannotate 
-    wget -O funannotate.tar.gz \
-        --no-check-certificate \
-        https://github.com/nextgenusfs/funannotate/archive/1.6.0.tar.gz
-    mkdir funannotate
-    tar -zxf funannotate.tar.gz \
-        -C funannotate \
-        --strip-components 1
-    # git clone https://github.com/nextgenusfs/funannotate.git
-    # cd funannotate || exit 1
-    # git checkout 16500bc
-    # cd .. || exit 1
-
-    # make the repeatmasker dir writable?
-    chmod -R 777 /usr/local/RepeatMasker/Libraries
+    /usr/local/bin/pip3 \
+        install \
+        git+git://github.com/nextgenusfs/funannotate.git@8e2e0a1
+    
+    export PATH="/blast/bin:${PATH}:/usr/lib/debian-med/bin:/fasta/bin:/pasa/bin:/genemark:/evm:/snap"
+    export FUNANNOTATE_DB=/funannotate_db
+    export PASAHOME=/pasa
+    export TRINITYHOME=/usr/bin
+    export EVM_HOME=/evm
+    export AUGUSTUS_CONFIG_PATH="/opt/augustus-3.3.3/config"
+    export GENEMARK_PATH=/genemark
+    export BAMTOOLS_PATH=/usr/bin
+    funannotate check --show-versions
 
 %environment
-    export PATH="/blast/bin:${PATH}:/usr/lib/debian-med/bin:/fasta/bin:/pasa/bin:/genemark:/funannotate:/evm:/snap"
+    export PATH="/blast/bin:${PATH}:/usr/lib/debian-med/bin:/fasta/bin:/pasa/bin:/genemark:/evm:/snap"
     export FUNANNOTATE_DB=/funannotate_db
     export PASAHOME=/pasa
     export TRINITYHOME=/usr/bin
@@ -55,4 +66,4 @@ From: TomHarrop/funannotate-singularity:funannotate-deps_1.6.0
     export BAMTOOLS_PATH=/usr/bin
 
 %runscript
-    exec /funannotate/funannotate "$@"
+    exec /usr/local/bin/funannotate "$@"

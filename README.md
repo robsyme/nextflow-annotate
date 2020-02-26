@@ -4,20 +4,10 @@
 
 Singularity containers for `funannotate`. The version tags on `Singularity.funannotate-base` and `Singularity.funannotate-deps` refer to the version of `funannotate` they were built for rather than the software in the containers.
 
-### Dockerfile
-
-Fork of Rob Syme's [RepeatMasker Dockerfile](https://github.com/robsyme/nextflow-annotate/tree/master/Dockerfiles/RepeatMasker-onbuild), just using a different base image.
-
-Note to self: push a new tag to get Docker Hub to build a new container from the Dockerfile.
-
-### Singularity.repeatmasker
-
-Builds [the image from Docker Hub](https://hub.docker.com/r/tomharrop/funannotate-singularity) into a `.sif`
-
 ### Singularity.tetools
 
 New base for funannotate using [Dfam's TE Tools container](https://github.com/Dfam-consortium/TETools).
-My singularity recipe pulls the docker image from `dfam/tetools`, adds `trf` and makes the RepeatMasker library directory writable.
+My singularity recipe pulls the docker image from `dfam/tetools`, adds `trf` and makes the RepeatMasker library directory writeable.
 
 ### Singularity.funannotate-base
 
