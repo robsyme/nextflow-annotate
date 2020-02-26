@@ -1,22 +1,21 @@
 Bootstrap: shub
-From: TomHarrop/funannotate-singularity:funannotate-base_1.6.0
+From: TomHarrop/funannotate-singularity:funannotate-base_8e2e0a1
 
 # Bootstrap: localimage
-# From: funannotate-base_1.6.0-local.sif
+# From: funannotate-base_8e2e0a1.sif
 
 %post
     # install augustus
-    # need from apt
     (
     wget -O "augustus.tar.gz" \
         --no-check-certificate \
         https://github.com/Gaius-Augustus/Augustus/releases/download/v3.3.3/augustus-3.3.3.tar.gz
-    mkdir augustus
+    mkdir /augustus
     tar -zxf augustus.tar.gz \
         -C /augustus \
         --strip-components 1
     rm -f augustus.tar.gz
-    cd augustus || exit 1
+    cd /augustus || exit 1
 
     export CC="$(which gcc)"
     export CXX="$(which g++)"
@@ -49,7 +48,7 @@ From: TomHarrop/funannotate-singularity:funannotate-base_1.6.0
 
     # augustus config
     export AUGUSTUS_CONFIG_PATH="/opt/augustus-3.3.3/config"
-    # allow BUSCO to *write* to the augustus config dir. Yuck.
+    # allow BUSCO to *write* to the augustus config dir
     chmod -R 777 "${AUGUSTUS_CONFIG_PATH}"
 
     # install blast 2.2.31 for BUSCO
@@ -86,33 +85,33 @@ From: TomHarrop/funannotate-singularity:funannotate-base_1.6.0
     # pasa
     wget -O "fasta.tar.gz" \
         http://faculty.virginia.edu/wrpearson/fasta/fasta36/fasta-36.3.8g.tar.gz
-    mkdir fasta
+    mkdir /fasta
     tar -zxf fasta.tar.gz \
-        -C fasta \
+        -C /fasta \
         --strip-components 2
     rm -f fasta.tar.gz
-    cd fasta/src || exit 1
+    cd /fasta/src || exit 1
     make -f ../make/Makefile.linux_sse2 all
     cd ../.. || exit 1
     cp fasta/bin/fasta36 /usr/local/bin/fasta
 
     wget -O "pasa.tar.gz" \
         https://github.com/PASApipeline/PASApipeline/releases/download/pasa-v2.3.3/PASApipeline-v2.3.3.tar.gz
-    mkdir pasa
+    mkdir /pasa
     tar -zxf pasa.tar.gz \
-        -C pasa \
+        -C /pasa \
         --strip-components 1
     rm -f pasa.tar.gz
-    cd pasa || exit 1
+    cd /pasa || exit 1
     make
     cd .. || exit 1
 
     # genemark
-    wget -O genemark_download.sh \
+    wget -O /genemark_download.sh \
         --no-check-certificate \
         https://raw.githubusercontent.com/TomHarrop/funannotate-singularity/master/src/genemark_download.sh
-    bash genemark_download.sh
-    rm genemark_download.sh
+    cd / && bash genemark_download.sh || exit 1
+    rm /genemark_download.sh
 
     # kallisto
     wget -O "kallisto.tar.gz" \
@@ -129,6 +128,7 @@ From: TomHarrop/funannotate-singularity:funannotate-base_1.6.0
         --no-check-certificate \
         http://ccb.jhu.edu/software/stringtie/dl/stringtie-1.3.6.Linux_x86_64.tar.gz
     mkdir stringtie
+
     tar -zxf stringtie.tar.gz \
         -C stringtie \
         --strip-components 1
@@ -153,14 +153,25 @@ From: TomHarrop/funannotate-singularity:funannotate-base_1.6.0
     wget -O evm.tar.gz \
         --no-check-certificate \
     https://github.com/EVidenceModeler/EVidenceModeler/archive/v1.1.1.tar.gz
-    mkdir evm
+    mkdir /evm
     tar -zxf evm.tar.gz \
-        -C evm \
+        -C /evm \
         --strip-components 1
     rm -f evm.tar.gz
 
     # trnascan-se \ move to deps?
-    # http://trna.ucsc.edu/software/trnascan-se-2.0.5.tar.gz
+    wget -O trnascan.tar.gz \
+        --no-check-certificate \
+        http://trna.ucsc.edu/software/trnascan-se-2.0.5.tar.gz
+    mkdir trnascan
+    tar -zxf trnascan.tar.gz \
+        -C trnascan \
+        --strip-components 1
+    cd trnascan || exit 1
+    ./configure
+    make && make install
+    cd .. || exit 1
+    rm -r trnascan trnascan.tar.gz
 
     # glimmerhmm
     (
@@ -172,7 +183,6 @@ From: TomHarrop/funannotate-singularity:funannotate-base_1.6.0
         -C glimmerhmm \
         --strip-components 1
     cd glimmerhmm || exit 1
-
 
     # from here, follow the conda recipe from https://raw.githubusercontent.com/bioconda/bioconda-recipes/master/recipes/glimmerhmm/build.sh
     export PREFIX=/usr/local
@@ -229,3 +239,11 @@ From: TomHarrop/funannotate-singularity:funannotate-base_1.6.0
     cd ../ || exit 1
     rm -r glimmerhmm.tar.gz glimmerhmm
     )
+
+    # missing at 1.8.0
+    # augustus (it's installed, not sure what the error is)
+    # proteinortho not installed, don't know what it is
+    # salmon (it's installed at /usr/bin/salmon)
+    # signalp not installed, can't b/c license
+    # trimmomatic (it's installed, java -jar /usr/share/java/trimmomatic.jar,
+    #              /usr/bin/TrimmomaticPE, /usr/bin/TrimmomaticSE)
