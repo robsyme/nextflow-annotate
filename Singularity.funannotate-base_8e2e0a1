@@ -110,7 +110,6 @@ _EOF_
         matplotlib \
         natsort \
         numpy \
-        numpy \
         pandas \
         psutil \
         PyQt5 \
@@ -124,11 +123,23 @@ _EOF_
     # emapper is py2 only?
     /usr/bin/pip2 install --upgrade pip
     /usr/local/bin/pip2 install \
-        git+https://github.com/jhcepas/eggnog-mapper.git
-
-    
-
+        biopython \
+        git+https://github.com/jhcepas/eggnog-mapper.git \
+        goatools \
+        lxml \
+        matplotlib \
+        natsort \
+        numpy \
+        pandas \
+        psutil \
+        QtPy \
+        requests \
+        scikit-learn \
+        scipy \
+        seaborn \
+        six
 
     # how is funannotate looking?
     # /usr/local/bin/pip3 install git+git://github.com/nextgenusfs/funannotate.git@8e2e0a1
+    # /usr/local/bin/pip2 install git+git://github.com/nextgenusfs/funannotate.git@v1.7.4
     # funannotate check --show-versions

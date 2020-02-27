@@ -20,4 +20,3 @@ Manually installs the remaining dependencies into Singularity.funannotate-base
 ### Singularity.funannotate
 
 Adds `funannotate` into Singularity.funannotate-deps and sets up environment
-
