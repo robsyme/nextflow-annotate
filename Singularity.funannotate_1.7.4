@@ -1,5 +1,5 @@
 Bootstrap: shub
-From: TomHarrop/funannotate-singularity:funannotate-deps_8e2e0a1
+From: TomHarrop/funannotate-singularity:funannotate-deps_1.7.4
 
 # Bootstrap: localimage
 # From: funannotate-deps_8e2e0a1.sif
@@ -33,18 +33,17 @@ From: TomHarrop/funannotate-singularity:funannotate-deps_8e2e0a1
 
 %labels
     MAINTAINER "Tom Harrop (twharrop@gmail.com)"
-    VERSION "funannotate 8e2e0a1 for python3"
+    VERSION "funannotate v1.7.4 for python2"
 
 %post
     export DEBIAN_FRONTEND=noninteractive
 
-    # Genemark license? cp to ${HOME}/.gm_key at runtime
 
     # funannotate 
-    /usr/local/bin/pip3 \
+    /usr/local/bin/pip2 \
         install \
-        git+git://github.com/nextgenusfs/funannotate.git@8e2e0a1
-    
+        git+git://github.com/nextgenusfs/funannotate.git@v1.7.4
+
     export PATH="/blast/bin:${PATH}:/usr/lib/debian-med/bin:/fasta/bin:/pasa/bin:/genemark:/evm:/snap"
     export FUNANNOTATE_DB=/funannotate_db
     export PASAHOME=/pasa
