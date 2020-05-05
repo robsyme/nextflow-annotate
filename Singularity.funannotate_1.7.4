@@ -38,6 +38,16 @@ From: TomHarrop/funannotate-singularity:funannotate-deps_1.7.4
 %post
     export DEBIAN_FRONTEND=noninteractive
 
+    # provide wrapper for trimmomatic (move to deps)
+    wget \
+        -O trimmomatic.py \
+        https://raw.githubusercontent.com/bioconda/bioconda-recipes/master/recipes/trimmomatic/trimmomatic.py
+    sed -e \
+        's/trimmomatic.jar/\/usr\/share\/java\/trimmomatic.jar/g' \
+        trimmomatic.py \
+        > /usr/local/bin/trimmomatic
+    rm trimmomatic.py
+    chmod 755 /usr/local/bin/trimmomatic
 
     # funannotate 
     /usr/local/bin/pip2 \
@@ -56,7 +66,6 @@ From: TomHarrop/funannotate-singularity:funannotate-deps_1.7.4
 
 %environment
     export PATH="/blast/bin:${PATH}:/usr/lib/debian-med/bin:/fasta/bin:/pasa/bin:/genemark:/evm:/snap"
-    export FUNANNOTATE_DB=/funannotate_db
     export PASAHOME=/pasa
     export TRINITYHOME=/usr/bin
     export EVM_HOME=/evm
