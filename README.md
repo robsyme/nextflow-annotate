@@ -6,7 +6,7 @@ Singularity containers for `funannotate`. The version tags on `Singularity.funan
 
 ### Usage
 
-By default, funannotate uses the `FUNANNOTATE_DB` environment variable to define the path to the funannotate database. As of 7a3dbf905639fd854f15bf1604630bb6e87068fd, `FUNANNOTATE_DB` is not defined in the container. Provide the path to the database either by defining the variable or using the `-d` argument to funannotate.
+By default, funannotate uses the `FUNANNOTATE_DB` environment variable to define the path to the funannotate database. As of [7a3dbf9](https://github.com/TomHarrop/funannotate-singularity/commit/7a3dbf905639fd854f15bf1604630bb6e87068fd), `FUNANNOTATE_DB` is not defined in the container. Provide the path to the database either by defining the variable or using the `-d` argument to funannotate.
 
 The RepeatMasker installation does not include Repbase libraries.
 
