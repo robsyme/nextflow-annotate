@@ -34,3 +34,19 @@ Manually installs the remaining dependencies into Singularity.funannotate-base
 ### Singularity.funannotate
 
 Adds `funannotate` into Singularity.funannotate-deps and sets up environment
+
+### Singularity.interproscan
+
+A container recipe to run `interproscan` outside `funannotate`. Because the container is 9.3 GB it's not hosted on Singularity Hub. Build it locally, and download and expand the Panther 14.1 database. `interproscan` looks for Panther data in /interproscan/data/panther/14.1, so bind the path to your downloaded Panther database into the interproscan as follows:
+
+```bash
+singularity exec \
+    --writable-tmpfs \
+    -B /path/to/panther:/interproscan/data/panther \
+    interproscan_5.44-79.0.sif \
+    interproscan.sh \
+    -i /interproscan/test_proteins.fasta \
+    -f tsv -dp \
+    --output-dir test \
+    --tempdir temp
+```
