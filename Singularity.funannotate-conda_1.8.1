@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: continuumio/miniconda3:4.7.12
+From: continuumio/miniconda3:4.8.2
 
 %environment
     export LC_ALL=C
@@ -46,7 +46,7 @@ _EOF_
     conda config --add channels conda-forge
     conda update --yes -n base -c defaults conda
 
-    conda create -n funannotate --yes "funannotate=1.7.4"
+    conda create -n funannotate --yes "funannotate=1.8.1"
     conda clean -afy
 
     # genemark
