@@ -13,7 +13,6 @@ wget \
         --strip-components 1
     rm -f genemark.tar.gz
     cd genemark || exit 1
-    rm gm_key*
     wget "${url32}"
     wget "${url64}"
     gunzip *.gz
